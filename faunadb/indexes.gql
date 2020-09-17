@@ -1,0 +1,31 @@
+CreateIndex({
+  name: "clordersku_by_clorder",
+  source: Collection("clorderskus"),
+  terms: [{ field: ["data", "order", "data", "id"] }],
+values: [{ field: ["data", "reference"] }]
+})
+
+CreateIndex({
+  name: "clordersku_by_purveyor",
+  source: Collection("clorderskus"),
+  terms: [{ field: ["data", "order", "data", "id"] },{ field: ["data", "reference"] }],
+  values: [{ field: ["data","reference"] },{ field: ["data","code"] },{ field: ["data","name"] },{ field: ["data","pieces_per_pack"] } ]
+})
+
+CreateIndex({
+  name: "purveyorByDatocmsId",
+  source: Collection("purveyors"),
+  terms: [{ field: ["data", "datocms_id"] }]
+})
+
+CreateIndex({
+  name: “productByDatocmsId",
+  source: Collection(“products”),
+  terms: [{ field: ["data", "datocms_id"] }]
+})
+
+CreateIndex({
+  name: “purveyorByChecId",
+  source: Collection(“purveyors”),
+  terms: [{ field: ["data", "checId"] }]
+})

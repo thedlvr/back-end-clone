@@ -1,0 +1,350 @@
+type Purveyor @collection(name: "purveyors") {
+   datocms_id: String!
+   name: String
+   checId: String!
+   checPublicKey: String!
+   checSecretKey: String!
+   checSandboxPublicKey: String!
+   checSandboxSecretKey: String!
+}
+
+type Product @collection(name: "products") {
+  datocms_id: String!
+  chec_product_id: String
+  name: String
+  sku: String
+  price: Int
+  description: String
+  datocms_purveyor_id: String
+  product_measurement: String
+  product_variant: String
+  dietary_tag: String
+  cl_id: String
+}
+
+type CLOrderAttribute @collection(name: "clorderattributes") {
+  number: Int
+  status: String
+  payment_status: String
+  fulfillment_status: String
+  guest: Boolean
+  editable: Boolean
+  placeable: Boolean
+  customer_email: String
+  language_code: String
+  currency_code: String
+  tax_included: Boolean
+  tax_rate: String
+  freight_taxable: String
+  requires_billing_info: Boolean
+  country_code: String
+  shipping_country_code_lock: String
+  coupon_code: String
+  gift_card_code: String
+  gift_card_or_coupon_code: String
+  subtotal_amount_cents: Int
+  subtotal_amount_float: Float
+  formatted_subtotal_amount: String
+  shipping_amount_cents: Int
+  shipping_amount_float: Float
+  formatted_shipping_amount: String
+  payment_method_amount_cents: Int
+  payment_method_amount_float: Float
+  formatted_payment_method_amount: String
+  discount_amount_cents: Int
+  discount_amount_float: Float
+  formatted_discount_amount: String
+  adjustment_amount_cents: Int
+  adjustment_amount_float: Float
+  formatted_adjustment_amount: String
+  gift_card_amount_cents: Int
+  gift_card_amount_float: Float
+  formatted_gift_card_amount: String
+  total_tax_amount_cents: Int
+  total_tax_amount_float: Float
+  formatted_total_tax_amount: String
+  subtotal_tax_amount_cents: Int
+  subtotal_tax_amount_float: Float
+  formatted_subtotal_tax_amount: String
+  shipping_tax_amount_cents: Int
+  shipping_tax_amount_float: Float
+  formatted_shipping_tax_amount: String
+  payment_method_tax_amount_cents: Int
+  payment_method_tax_amount_float: Float
+  formatted_payment_method_tax_amount: String
+  adjustment_tax_amount_cents: Int
+  adjustment_tax_amount_float: Float
+  formatted_adjustment_tax_amount: String
+  total_amount_cents: Int
+  total_amount_float: Float
+  formatted_total_amount: String
+  total_taxable_amount_cents: Int
+  total_taxable_amount_float: Float
+  formatted_total_taxable_amount: String
+  subtotal_taxable_amount_cents: Int
+  subtotal_taxable_amount_float: Float
+  formatted_subtotal_taxable_amount: String
+  shipping_taxable_amount_cents: Int
+  shipping_taxable_amount_float: Float
+  formatted_shipping_taxable_amount: String
+  payment_method_taxable_amount_cents: Int
+  payment_method_taxable_amount_float: Float
+  formatted_payment_method_taxable_amount: String
+  adjustment_taxable_amount_cents: Int
+  adjustment_taxable_amount_float: Float
+  formatted_adjustment_taxable_amount: String
+  total_amount_with_taxes_cents: Int
+  total_amount_with_taxes_float: Float
+  formatted_total_amount_with_taxes: String
+  fees_amount_cents: Int
+  fees_amount_float: Float
+  formatted_fees_amount: String
+  authorization_amount_cents: Int
+  authorization_amount_float: Float
+  formatted_authorization_amount: String
+  authorization_balance_cents: Int
+  authorization_balance_float: Float
+  formatted_authorization_balance: String
+  skus_count: Int
+  line_item_options_count: Int
+  shipments_count: Int
+  payment_source_details: String
+  token: String
+  cart_url: String
+  return_url: String
+  terms_url: String
+  privacy_url: String
+  checkout_url: String
+  placed_at: String
+  approved_at: String
+  cancelled_at: String
+  payment_updated_at: String
+  fulfillment_updated_at: String
+  created_at: String
+  updated_at: String
+  reference: String
+  reference_origin: String
+}
+
+type CLOrderSKUs @collection(name: "clorderskus") {
+  order: CLOrders
+  code: String
+  name: String
+  description: String
+  image_url: String
+  pieces_per_pack: String
+  weight: Int
+  unit_of_weight: String
+  hs_tariff_number: String
+  created_at: String
+  updated_at: String
+  reference: String
+  reference_origin: String
+}
+
+type CLOrders @collection(name: "clorders") {
+  id: String
+  attributes: CLOrderAttribute @relation
+  items: [CLOrderSKUs] @relation
+}
+
+type CLOrderSKUsOutput @embedded {
+  code: String
+  name: String
+  pieces_per_pack: String
+  reference: String
+}
+
+type clorderSkusPayload @embedded {
+  data: [SkuPurveyor]
+}
+
+type SkuPurveyor @embedded {
+  data: [CLOrderSKUsOutput]
+}
+
+type ChecOrders @collection(name: "checorders") {
+    id: String!
+    purveyor_id: String!
+    cl_order_id: String!
+    cart_id: String!
+    created: Int
+    customer_reference: String!
+    status_payment: String!
+    status_fulfillment: String!
+    customer_email: String!
+    customer_firstname: String!
+    customer_lastname: String
+    currency_code: String!
+    currency_symbol: String!
+    subtotal_raw: Int
+    subtotal_formatted: String
+    shipping_price_raw: Int
+    shipping_price_formatted: String
+    tax_raw: Int
+    tax_formatted: String
+    tax_included_in_price: Boolean
+    total_raw: Int
+    total_formatted: String
+    total_with_tax_raw: Int
+    total_with_tax_formatted: String
+    total_paid_raw: Int
+    total_paid_formatted: String
+}
+
+type ChecOrderSKUs @collection(name: "checorderskus") {
+    id: String!
+    chec_id: String!
+    product_id: String!
+    product_name: String!
+    type: String!
+    sku: String!
+    quantity: Int
+    price_raw: Int
+    price_formatted: String
+    tax_is_taxable: Boolean
+    taxable_amount: Int
+    line_total_raw: Int
+    line_total_formatted: String
+}
+
+type Query {
+   allOrders: [CLOrders!]
+   orderById(id: String!): [CLOrders!]
+   allPurveyors: [Purveyor!]
+   purveyorByChecId(checId: String!): [Purveyor!] @resolver(name: "purveyorByChecId", paginated: false)
+   clorderSkusByPurveyor(orderId: String!): clorderSkusPayload! @resolver(name: "getSkusByPurveyor", paginated: false)
+   purveyorByDatocmsId(datocmsId: String!): [Purveyor!] @resolver(name: "purveyorByDatocmsId", paginated: false)
+}
+
+input CLOrderAttributeInput {
+  number: Int
+  status: String
+  payment_status: String
+  fulfillment_status: String
+  guest: Boolean
+  editable: Boolean
+  placeable: Boolean
+  customer_email: String
+  language_code: String
+  currency_code: String
+  tax_included: Boolean
+  tax_rate: String
+  freight_taxable: String
+  requires_billing_info: Boolean
+  country_code: String
+  shipping_country_code_lock: String
+  coupon_code: String
+  gift_card_code: String
+  gift_card_or_coupon_code: String
+  subtotal_amount_cents: Int
+  subtotal_amount_float: Float
+  formatted_subtotal_amount: String
+  shipping_amount_cents: Int
+  shipping_amount_float: Float
+  formatted_shipping_amount: String
+  payment_method_amount_cents: Int
+  payment_method_amount_float: Float
+  formatted_payment_method_amount: String
+  discount_amount_cents: Int
+  discount_amount_float: Float
+  formatted_discount_amount: String
+  adjustment_amount_cents: Int
+  adjustment_amount_float: Float
+  formatted_adjustment_amount: String
+  gift_card_amount_cents: Int
+  gift_card_amount_float: Float
+  formatted_gift_card_amount: String
+  total_tax_amount_cents: Int
+  total_tax_amount_float: Float
+  formatted_total_tax_amount: String
+  subtotal_tax_amount_cents: Int
+  subtotal_tax_amount_float: Float
+  formatted_subtotal_tax_amount: String
+  shipping_tax_amount_cents: Int
+  shipping_tax_amount_float: Float
+  formatted_shipping_tax_amount: String
+  payment_method_tax_amount_cents: Int
+  payment_method_tax_amount_float: Float
+  formatted_payment_method_tax_amount: String
+  adjustment_tax_amount_cents: Int
+  adjustment_tax_amount_float: Float
+  formatted_adjustment_tax_amount: String
+  total_amount_cents: Int
+  total_amount_float: Float
+  formatted_total_amount: String
+  total_taxable_amount_cents: Int
+  total_taxable_amount_float: Float
+  formatted_total_taxable_amount: String
+  subtotal_taxable_amount_cents: Int
+  subtotal_taxable_amount_float: Float
+  formatted_subtotal_taxable_amount: String
+  shipping_taxable_amount_cents: Int
+  shipping_taxable_amount_float: Float
+  formatted_shipping_taxable_amount: String
+  payment_method_taxable_amount_cents: Int
+  payment_method_taxable_amount_float: Float
+  formatted_payment_method_taxable_amount: String
+  adjustment_taxable_amount_cents: Int
+  adjustment_taxable_amount_float: Float
+  formatted_adjustment_taxable_amount: String
+  total_amount_with_taxes_cents: Int
+  total_amount_with_taxes_float: Float
+  formatted_total_amount_with_taxes: String
+  fees_amount_cents: Int
+  fees_amount_float: Float
+  formatted_fees_amount: String
+  authorization_amount_cents: Int
+  authorization_amount_float: Float
+  formatted_authorization_amount: String
+  authorization_balance_cents: Int
+  authorization_balance_float: Float
+  formatted_authorization_balance: String
+  skus_count: Int
+  line_item_options_count: Int
+  shipments_count: Int
+  payment_source_details: String
+  token: String
+  cart_url: String
+  return_url: String
+  terms_url: String
+  privacy_url: String
+  checkout_url: String
+  placed_at: String
+  approved_at: String
+  cancelled_at: String
+  payment_updated_at: String
+  fulfillment_updated_at: String
+  created_at: String
+  updated_at: String
+  reference: String
+  reference_origin: String
+}
+
+input CLOrderSKUsInput {
+  order: CLOrderInput
+  code: String
+  name: String
+  description: String
+  image_url: String
+  pieces_per_pack: String
+  weight: Int
+  unit_of_weight: String
+  hs_tariff_number: String
+  created_at: String
+  updated_at: String
+  reference: String
+  reference_origin: String
+}
+
+input CLOrderInput {
+   orderId: String!
+   attributes: CLOrderAttributeInput!
+}
+
+type Mutation {
+   addCLOrder(orderId: String!, attributes: CLOrderAttributeInput!): CLOrders! @resolver
+   updateCLOrder(orderId: String!, attributes: CLOrderAttributeInput, items: [CLOrderSKUsInput]): CLOrders! @resolver
+   updatePurveyor(datocms_id: String!, name: String, checSecretKey: String, checSandboxSecretKey: String, checPublicKey: String, checSandboxPublicKey: String, checId: String): Purveyor! @resolver
+   productUpdateByDatocmsId(datocms_id: String!, name: String, product_measurement: String, sku: String, dietary_tag: String, product_variant: String, description: String, price: String, datocms_purveyor_id: String): Product! @resolver
+}
