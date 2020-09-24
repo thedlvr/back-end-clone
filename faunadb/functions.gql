@@ -276,3 +276,20 @@ Update(Function("updatePurveyor"), {
   )
 )
 });
+
+Update(Function("customerByEmail"), {
+  "body":Query(
+  Lambda(
+    ["email"],
+    Let(
+      {
+        customer: Map(
+          Paginate(Match(Index("customerByEmail"), Var("email"))),
+          Lambda("customer", Get(Var("customer")))
+        )
+      },
+      Select(["data"],Var("customer"))
+    )
+  )
+)
+});

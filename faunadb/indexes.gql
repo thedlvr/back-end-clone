@@ -29,3 +29,9 @@ CreateIndex({
   source: Collection(“purveyors”),
   terms: [{ field: ["data", "checId"] }]
 })
+
+CreateIndex({
+  name: "customerByEmail",
+  source: Collection("customers"),
+  terms: [{ field: ["data", "email"] }]
+})

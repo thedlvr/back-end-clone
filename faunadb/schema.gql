@@ -1,3 +1,21 @@
+type Customer @collection(name: "customers") {
+   auth0_id: String!
+   user_id: String
+   user_id_withauth0: String
+   name: String
+   nickname: String
+   email: String
+   email_verified: String
+   picture_url: String
+   global_client_id: String
+   connection: String
+   is_social: String
+   client_id: String
+   provider: String
+   created_at: String
+   updated_at: String
+}
+
 type Purveyor @collection(name: "purveyors") {
    datocms_id: String!
    name: String
@@ -215,6 +233,7 @@ type Query {
    purveyorByChecId(checId: String!): [Purveyor!] @resolver(name: "purveyorByChecId", paginated: false)
    clorderSkusByPurveyor(orderId: String!): clorderSkusPayload! @resolver(name: "getSkusByPurveyor", paginated: false)
    purveyorByDatocmsId(datocmsId: String!): [Purveyor!] @resolver(name: "purveyorByDatocmsId", paginated: false)
+   customerByEmail(email: String!): [Customer!] @resolver(name: "customerByEmail", paginated: false)
 }
 
 input CLOrderAttributeInput {
