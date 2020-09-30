@@ -1,5 +1,5 @@
 type Customer @collection(name: "customers") {
-   auth0_id: String!
+   auth0_id: String
    user_id: String
    user_id_withauth0: String
    name: String
@@ -12,6 +12,8 @@ type Customer @collection(name: "customers") {
    is_social: String
    client_id: String
    provider: String
+   favoriteproducts: [Product] @relation
+   cl_orders: [CLOrders] @relation
    created_at: String
    updated_at: String
 }
@@ -38,6 +40,7 @@ type Product @collection(name: "products") {
   product_variant: String
   dietary_tag: String
   cl_id: String
+  customers: [Customer] @relation
 }
 
 type CLOrderAttribute @collection(name: "clorderattributes") {
@@ -144,26 +147,78 @@ type CLOrderAttribute @collection(name: "clorderattributes") {
   reference_origin: String
 }
 
+type CLAddress @collection(name: "claddresses") {
+    first_name: String,
+    last_name: String,
+    company: String,
+    email: String,
+    phone: String,     
+    line_1: String,
+    line_2: String,
+    city: String,    
+    state_code: String,
+    country_code: String,        
+    zip_code: String,
+    lat: String,
+    lng: String
+    cl_order: CLOrderSKUs @relation
+}
+
 type CLOrderSKUs @collection(name: "clorderskus") {
-  order: CLOrders
+  product: Product
+  order: CLOrders @relation
   code: String
-  name: String
-  description: String
-  image_url: String
-  pieces_per_pack: String
-  weight: Int
-  unit_of_weight: String
-  hs_tariff_number: String
+  quantity: String
   created_at: String
   updated_at: String
-  reference: String
-  reference_origin: String
 }
 
 type CLOrders @collection(name: "clorders") {
   id: String
+  order_id: String
+  customer: Customer @relation
   attributes: CLOrderAttribute @relation
   items: [CLOrderSKUs] @relation
+  shipping: CLAddress @relation
+  billing: CLAddress @relation
+  chec_orders: [ChecOrders] @relation
+}
+
+type CustomerProfilePayload @embedded {
+  customer: CustomerProfile
+  favoriteproducts: [FavoriteProduct]
+}
+
+type CustomerProfile @embedded {
+   auth0_id: String
+   user_id: String
+   user_id_withauth0: String
+   name: String
+   nickname: String
+   email: String
+   email_verified: String
+   picture_url: String
+   global_client_id: String
+   connection: String
+   is_social: String
+   client_id: String
+   provider: String
+   created_at: String
+   updated_at: String
+}
+
+type FavoriteProduct @embedded {
+  datocms_id: String!
+  chec_product_id: String
+  name: String
+  sku: String
+  price: Int
+  description: String
+  datocms_purveyor_id: String
+  product_measurement: String
+  product_variant: String
+  dietary_tag: String
+  cl_id: String
 }
 
 type CLOrderSKUsOutput @embedded {
@@ -208,6 +263,7 @@ type ChecOrders @collection(name: "checorders") {
     total_with_tax_formatted: String
     total_paid_raw: Int
     total_paid_formatted: String
+    cl_order: CLOrders @relation
 }
 
 type ChecOrderSKUs @collection(name: "checorderskus") {
@@ -224,16 +280,6 @@ type ChecOrderSKUs @collection(name: "checorderskus") {
     taxable_amount: Int
     line_total_raw: Int
     line_total_formatted: String
-}
-
-type Query {
-   allOrders: [CLOrders!]
-   orderById(id: String!): [CLOrders!]
-   allPurveyors: [Purveyor!]
-   purveyorByChecId(checId: String!): [Purveyor!] @resolver(name: "purveyorByChecId", paginated: false)
-   clorderSkusByPurveyor(orderId: String!): clorderSkusPayload! @resolver(name: "getSkusByPurveyor", paginated: false)
-   purveyorByDatocmsId(datocmsId: String!): [Purveyor!] @resolver(name: "purveyorByDatocmsId", paginated: false)
-   customerByEmail(email: String!): [Customer!] @resolver(name: "customerByEmail", paginated: false)
 }
 
 input CLOrderAttributeInput {
@@ -359,6 +405,17 @@ input CLOrderSKUsInput {
 input CLOrderInput {
    orderId: String!
    attributes: CLOrderAttributeInput!
+}
+
+type Query {
+   allOrders: [CLOrders!]
+   orderById(id: String!): [CLOrders!]
+   allPurveyors: [Purveyor!]
+   purveyorByChecId(checId: String!): [Purveyor!] @resolver(name: "purveyorByChecId", paginated: false)
+   clorderSkusByPurveyor(orderId: String!): clorderSkusPayload! @resolver(name: "getSkusByPurveyor", paginated: false)
+   purveyorByDatocmsId(datocmsId: String!): [Purveyor!] @resolver(name: "purveyorByDatocmsId", paginated: false)
+   customerByEmail(email: String!): [Customer!] @resolver(name: "customerByEmail", paginated: false)
+   customerProfileByAuth0(auth0: String!): CustomerProfilePayload @resolver(name: "customerProfile", paginated: false)
 }
 
 type Mutation {

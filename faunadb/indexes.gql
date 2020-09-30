@@ -35,3 +35,15 @@ CreateIndex({
   source: Collection("customers"),
   terms: [{ field: ["data", "email"] }]
 })
+
+CreateIndex({
+  name: "productBySKU",
+  source: Collection("products"),
+  terms: [{ field: ["data", "sku"] }]
+})
+
+# CreateIndex({
+#   name: "favoriteproductExist",
+#   source: Collection("favoriteproducts"),
+#   terms: [{ field: ["data", "customerID"] },{ field: ["data", "productID"] }]
+# })
