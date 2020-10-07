@@ -19,14 +19,14 @@ CreateIndex({
 })
 
 CreateIndex({
-  name: “productByDatocmsId",
-  source: Collection(“products”),
+  name: "productByDatocmsId",
+  source: Collection("products”),
   terms: [{ field: ["data", "datocms_id"] }]
 })
 
 CreateIndex({
-  name: “purveyorByChecId",
-  source: Collection(“purveyors”),
+  name: "purveyorByChecId",
+  source: Collection("purveyors"),
   terms: [{ field: ["data", "checId"] }]
 })
 
@@ -42,8 +42,14 @@ CreateIndex({
   terms: [{ field: ["data", "sku"] }]
 })
 
-# CreateIndex({
-#   name: "favoriteproductExist",
-#   source: Collection("favoriteproducts"),
-#   terms: [{ field: ["data", "customerID"] },{ field: ["data", "productID"] }]
-# })
+CreateIndex({
+  name: "favoriteproductByCustomer",
+  source: Collection("customer_favoriteproducts"),
+  terms: [{ field: ["data", "customerID"] }]
+})
+
+CreateIndex({
+  name: "favoritepurveyorByCustomer",
+  source: Collection("customer_favoritepurveyors"),
+  terms: [{ field: ["data", "customerID"] }]
+})

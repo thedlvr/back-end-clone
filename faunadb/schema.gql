@@ -1,31 +1,35 @@
 type Customer @collection(name: "customers") {
-   auth0_id: String
-   user_id: String
-   user_id_withauth0: String
-   name: String
-   nickname: String
-   email: String
-   email_verified: String
-   picture_url: String
-   global_client_id: String
-   connection: String
-   is_social: String
-   client_id: String
-   provider: String
-   favoriteproducts: [Product] @relation
-   cl_orders: [CLOrders] @relation
-   created_at: String
-   updated_at: String
+  auth0_id: String
+  user_id: String
+  user_id_withauth0: String
+  name: String
+  nickname: String
+  email: String
+  email_verified: String
+  picture_url: String
+  global_client_id: String
+  connection: String
+  is_social: String
+  client_id: String
+  provider: String
+  favoriteproducts: [Product] @relation
+  favoritepurveyors: [Purveyor] @relation
+  favoriterecipes: [Recipe] @relation
+  cl_orders: [CLOrder] @relation
+  created_at: String
+  updated_at: String
+  chec_orders: [ChecOrder] @relation
 }
 
 type Purveyor @collection(name: "purveyors") {
-   datocms_id: String!
-   name: String
-   checId: String!
-   checPublicKey: String!
-   checSecretKey: String!
-   checSandboxPublicKey: String!
-   checSandboxSecretKey: String!
+  datocms_id: String!
+  name: String
+  checId: String!
+  checPublicKey: String!
+  checSecretKey: String!
+  checSandboxPublicKey: String!
+  checSandboxSecretKey: String!
+  customers: [Customer] @relation
 }
 
 type Product @collection(name: "products") {
@@ -43,7 +47,14 @@ type Product @collection(name: "products") {
   customers: [Customer] @relation
 }
 
-type CLOrderAttribute @collection(name: "clorderattributes") {
+type Recipe @collection(name: "recipes") {
+  datocmsId: String!
+  name: String
+  datocmsPurveyorId: String!
+  customers: [Customer] @relation
+}
+
+type CLOrderAttribute @embedded {
   number: Int
   status: String
   payment_status: String
@@ -147,64 +158,69 @@ type CLOrderAttribute @collection(name: "clorderattributes") {
   reference_origin: String
 }
 
-type CLAddress @collection(name: "claddresses") {
-    first_name: String,
-    last_name: String,
-    company: String,
-    email: String,
-    phone: String,     
-    line_1: String,
-    line_2: String,
-    city: String,    
-    state_code: String,
-    country_code: String,        
-    zip_code: String,
-    lat: String,
-    lng: String
-    cl_order: CLOrderSKUs @relation
+type CLAddress @embedded {
+  first_name: String
+  last_name: String
+  company: String
+  email: String
+  phone: String
+  line_1: String
+  line_2: String
+  city: String
+  state_code: String
+  country_code: String
+  zip_code: String
+  lat: String
+  lng: String
+  cl_order: CLOrderSKU
 }
 
-type CLOrderSKUs @collection(name: "clorderskus") {
+type CLOrderSKU @embedded {
   product: Product
-  order: CLOrders @relation
-  code: String
-  quantity: String
+  cl_order: CLOrder @relation
+  sku: String
+  quantity: Int
   created_at: String
   updated_at: String
 }
 
-type CLOrders @collection(name: "clorders") {
-  id: String
-  order_id: String
+type CLOrder @collection(name: "clorders") {
+  cl_order_id: String
   customer: Customer @relation
-  attributes: CLOrderAttribute @relation
-  items: [CLOrderSKUs] @relation
-  shipping: CLAddress @relation
-  billing: CLAddress @relation
-  chec_orders: [ChecOrders] @relation
+  attributes: CLOrderAttribute
+  items: [CLOrderSKU]
+  shipping: CLAddress
+  billing: CLAddress
+  chec_orders: [ChecOrder] @relation
+  created_at: Int
+}
+
+type ResponsePaylod @embedded {
+  message: String
 }
 
 type CustomerProfilePayload @embedded {
   customer: CustomerProfile
   favoriteproducts: [FavoriteProduct]
+  favoritepurveyors: [FavoritePurveyor]
 }
 
 type CustomerProfile @embedded {
-   auth0_id: String
-   user_id: String
-   user_id_withauth0: String
-   name: String
-   nickname: String
-   email: String
-   email_verified: String
-   picture_url: String
-   global_client_id: String
-   connection: String
-   is_social: String
-   client_id: String
-   provider: String
-   created_at: String
-   updated_at: String
+  auth0_id: String
+  user_id: String
+  user_id_withauth0: String
+  name: String
+  nickname: String
+  email: String
+  email_verified: String
+  picture_url: String
+  global_client_id: String
+  connection: String
+  is_social: String
+  client_id: String
+  provider: String
+  created_at: String
+  updated_at: String
 }
 
 type FavoriteProduct @embedded {
@@ -221,8 +237,13 @@ type FavoriteProduct @embedded {
   cl_id: String
 }
 
+type FavoritePurveyor @embedded {
+  datocms_id: String!
+  name: String
+}
+
 type CLOrderSKUsOutput @embedded {
-  code: String
+  sku: String
   name: String
   pieces_per_pack: String
   reference: String
@@ -236,51 +257,65 @@ type SkuPurveyor @embedded {
   data: [CLOrderSKUsOutput]
 }
 
-type ChecOrders @collection(name: "checorders") {
-    id: String!
-    purveyor_id: String!
-    cl_order_id: String!
-    cart_id: String!
-    created: Int
-    customer_reference: String!
-    status_payment: String!
-    status_fulfillment: String!
-    customer_email: String!
-    customer_firstname: String!
-    customer_lastname: String
-    currency_code: String!
-    currency_symbol: String!
-    subtotal_raw: Int
-    subtotal_formatted: String
-    shipping_price_raw: Int
-    shipping_price_formatted: String
-    tax_raw: Int
-    tax_formatted: String
-    tax_included_in_price: Boolean
-    total_raw: Int
-    total_formatted: String
-    total_with_tax_raw: Int
-    total_with_tax_formatted: String
-    total_paid_raw: Int
-    total_paid_formatted: String
-    cl_order: CLOrders @relation
+type ChecOrderAttribute @embedded {
+  cart_id: String!
+  created: Int
+  customer_reference: String!
+  status_payment: String!
+  status_fulfillment: String!
+  customer_email: String!
+  customer_firstname: String!
+  customer_lastname: String
+  currency_code: String!
+  currency_symbol: String!
+  subtotal_raw: Int
+  subtotal_formatted: String
+  shipping_price_raw: Int
+  shipping_price_formatted: String
+  tax_raw: Int
+  tax_formatted: String
+  tax_included_in_price: Boolean
+  total_raw: Int
+  total_formatted: String
+  total_with_tax_raw: Int
+  total_with_tax_formatted: String
+  total_paid_raw: Int
+  total_paid_formatted: String
 }
 
-type ChecOrderSKUs @collection(name: "checorderskus") {
-    id: String!
-    chec_id: String!
-    product_id: String!
-    product_name: String!
-    type: String!
-    sku: String!
-    quantity: Int
-    price_raw: Int
-    price_formatted: String
-    tax_is_taxable: Boolean
-    taxable_amount: Int
-    line_total_raw: Int
-    line_total_formatted: String
+type ChecOrder @collection(name: "checorders") {
+  chec_order_id: String!
+  purveyor: Purveyor
+  attributes: ChecOrderAttribute
+  cl_order: CLOrder @relation
+  items: [ChecOrderSKU]
+  customer: Customer @relation
+  created_at: Int
 }
+
+type ChecOrderSKU @embedded {
+  chec_order_item_id: String!
+  chec_product_id: String!
+  chec_product_name: String!
+  type: String!
+  sku: String!
+  quantity: Int
+  price_raw: Int
+  price_formatted: String
+  tax_is_taxable: Boolean
+  taxable_amount_raw: Int
+  taxable_amount_formatted: String
+  tax_amount_raw: Int
+  tax_amount_formatted: String
+  line_total_raw: Int
+  line_total_formatted: String
+  line_total_with_tax_raw: Int
+  line_total_with_tax_formatted: String
+  product: Product
+  checOrder: ChecOrder @relation
+}
+
+# INPUT
 
 input CLOrderAttributeInput {
   number: Int
@@ -386,41 +421,161 @@ input CLOrderAttributeInput {
   reference_origin: String
 }
 
-input CLOrderSKUsInput {
-  order: CLOrderInput
-  code: String
-  name: String
-  description: String
-  image_url: String
-  pieces_per_pack: String
-  weight: Int
-  unit_of_weight: String
-  hs_tariff_number: String
+# input CLOrderSKUsInput {
+#   # order: CLOrderInput
+#   code: String
+#   name: String
+#   description: String
+#   image_url: String
+#   pieces_per_pack: String
+#   weight: Int
+#   unit_of_weight: String
+#   hs_tariff_number: String
+#   created_at: String
+#   updated_at: String
+#   reference: String
+#   reference_origin: String
+# }
+
+# input CLOrderInput {
+#    orderId: String!
+#    attributes: CLOrderAttributeInput!
+# }
+
+input CLOrderSKUInput {
+  sku: String
+  quantity: Int
   created_at: String
   updated_at: String
-  reference: String
-  reference_origin: String
 }
 
-input CLOrderInput {
-   orderId: String!
-   attributes: CLOrderAttributeInput!
+input CLAddressInput {
+  first_name: String
+  last_name: String
+  company: String
+  email: String
+  phone: String
+  line_1: String
+  line_2: String
+  city: String
+  state_code: String
+  country_code: String
+  zip_code: String
+  lat: String
+  lng: String
 }
+
+input ChecOrderAttributeInput {
+  cart_id: String!
+  created: Int
+  customer_reference: String!
+  status_payment: String!
+  status_fulfillment: String!
+  customer_email: String!
+  customer_firstname: String!
+  customer_lastname: String
+  currency_code: String!
+  currency_symbol: String!
+  subtotal_raw: Int
+  subtotal_formatted: String
+  shipping_price_raw: Int
+  shipping_price_formatted: String
+  tax_raw: Int
+  tax_formatted: String
+  tax_included_in_price: Boolean
+  total_raw: Int
+  total_formatted: String
+  total_with_tax_raw: Int
+  total_with_tax_formatted: String
+  total_paid_raw: Int
+  total_paid_formatted: String
+}
+
+input ChecOrderSKUInput {
+  chec_order_item_id: String!
+  chec_product_id: String!
+  chec_product_name: String!
+  type: String!
+  sku: String!
+  quantity: Int
+  price_raw: Int
+  price_formatted: String
+  tax_is_taxable: Boolean
+  taxable_amount_raw: Int
+  taxable_amount_formatted: String
+  tax_amount_raw: Int
+  tax_amount_formatted: String
+  line_total_raw: Int
+  line_total_formatted: String
+  line_total_with_tax_raw: Int
+  line_total_with_tax_formatted: String
+}
+
+# END OF INPUT
 
 type Query {
-   allOrders: [CLOrders!]
-   orderById(id: String!): [CLOrders!]
-   allPurveyors: [Purveyor!]
-   purveyorByChecId(checId: String!): [Purveyor!] @resolver(name: "purveyorByChecId", paginated: false)
-   clorderSkusByPurveyor(orderId: String!): clorderSkusPayload! @resolver(name: "getSkusByPurveyor", paginated: false)
-   purveyorByDatocmsId(datocmsId: String!): [Purveyor!] @resolver(name: "purveyorByDatocmsId", paginated: false)
-   customerByEmail(email: String!): [Customer!] @resolver(name: "customerByEmail", paginated: false)
-   customerProfileByAuth0(auth0: String!): CustomerProfilePayload @resolver(name: "customerProfile", paginated: false)
+  allOrders: [CLOrder!]
+  clorderByOrderId(cl_order_id: String): [CLOrder!]
+  allPurveyors: [Purveyor!]
+  purveyorByChecId(checId: String!): [Purveyor!]
+    @resolver(name: "purveyorByChecId", paginated: false)
+  clorderSkusByPurveyor(orderId: String!): clorderSkusPayload!
+    @resolver(name: "getSkusByPurveyor", paginated: false)
+  purveyorByDatocmsId(datocmsId: String!): [Purveyor!]
+    @resolver(name: "purveyorByDatocmsId", paginated: false)
+  customerByEmail(email: String!): [Customer!]
+    @resolver(name: "customerByEmail", paginated: false)
+  customerProfileByAuth0(auth0: String!): CustomerProfilePayload
+    @resolver(name: "customerProfile", paginated: false)
 }
 
 type Mutation {
-   addCLOrder(orderId: String!, attributes: CLOrderAttributeInput!): CLOrders! @resolver
-   updateCLOrder(orderId: String!, attributes: CLOrderAttributeInput, items: [CLOrderSKUsInput]): CLOrders! @resolver
-   updatePurveyor(datocms_id: String!, name: String, checSecretKey: String, checSandboxSecretKey: String, checPublicKey: String, checSandboxPublicKey: String, checId: String): Purveyor! @resolver
-   productUpdateByDatocmsId(datocms_id: String!, name: String, product_measurement: String, sku: String, dietary_tag: String, product_variant: String, description: String, price: String, datocms_purveyor_id: String): Product! @resolver
+  #  addCLOrder(orderId: String!, attributes: CLOrderAttributeInput!): CLOrder! @resolver
+  createCLOrder(
+    cl_order_id: String!
+    email: String!
+    attributes: CLOrderAttributeInput!
+    items: [CLOrderSKUInput!]
+    shipping: CLAddressInput
+    billing: CLAddressInput
+  ): CLOrder! @resolver
+  createChecOrder(
+    chec_order_id: String!
+    chec_id: String!
+    cl_order_id: String
+    email: String!
+    attributes: ChecOrderAttributeInput!
+    items: [ChecOrderSKUInput!]
+  ): ChecOrder! @resolver
+  #updateCLOrder(orderId: String!, attributes: CLOrderAttributeInput, items: [CLOrderSKUsInput]): CLOrder! @resolver
+  updatePurveyor(
+    datocms_id: String!
+    name: String
+    checSecretKey: String
+    checSandboxSecretKey: String
+    checPublicKey: String
+    checSandboxPublicKey: String
+    checId: String
+  ): Purveyor! @resolver
+  productUpdateByDatocmsId(
+    datocms_id: String!
+    name: String
+    product_measurement: String
+    sku: String
+    dietary_tag: String
+    product_variant: String
+    description: String
+    price: String
+    datocms_purveyor_id: String
+  ): Product! @resolver
+  updateFavouriteProduct(auth0: String!, sku: String!): ResponsePaylod
+    @resolver(name: "favouriteproduct", paginated: false)
+  updateFavouritePurveyor(
+    auth0: String!
+    purveyorDatocmsId: String!
+  ): ResponsePaylod @resolver(name: "favouritepurveyor", paginated: false)
+  updateFavouriteRecipe(
+    auth0: String!
+    recipeDatocmsId: String!
+  ): ResponsePaylod @resolver(name: "favouriterecipe", paginated: false)
 }

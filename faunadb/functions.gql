@@ -297,51 +297,148 @@ Update(Function("customerByEmail"), {
 Update(Function("favouriteproduct"), {
   "body":Query(
   Lambda(
-    ["email","sku"],
+    ["auth0","sku"],
     Let(
-    {
-      customer: Map(
-        Paginate(Match(Index("customerByEmail"), "pavan168@hotmail.com")),
-        Lambda("customer", Get(Var("customer")))
-      ),
-      selectedCustomer: Select([0], Var("customer")),
-      favoriteproductRefs: Paginate(
-        Match(
-          Index("favoriteproductByCustomer"),
-          Select("ref", Var("selectedCustomer"))
-        )
-      ),
-      productRefs: Map(
-        Var("favoriteproductRefs"),
-        Lambda(["ref"], Get(Var("ref")))
-      ),
-      favoriteproducts: Map(Var("productRefs"),
-        Lambda(
-          ["favorite"], 
-          If(
-            Equals("CCAOZE-ABD-SCO-PTRY-0106",Select(["data","sku"],Get(Select(["data", "productID"], Var("favorite"))))),
-              Delete(
-                Ref(Collection("customer_favoriteproducts"), Select(["ref","id"], Var("favorite")))
-              ),
-              Create(
-                Collection("customer_favoriteproducts"), 
-                {
-                    data: {
-                      customerID: Select(["ref"], Var("selectedCustomer")),
-                      productID:  Ref(Collection("products"), "277701389320192513"),
-                    },
-                  }
+      {
+        customer: Let(
+          {
+            customers: Map(
+              Paginate(Match(Index("customerByEmail"), Var("auth0"))),
+              Lambda("customer", Get(Var("customer")))
+            )
+          },
+          Select([0], Var("customers"), null)
+        ),
+        product: Let(
+          {
+            products: Map(
+              Paginate(Match(Index("productBySKU"), Var("sku"))),
+              Lambda("product", Get(Var("product")))
+            )
+          },
+          Select([0], Var("products"))
+        ),
+        favoriteProductSelected: Let(
+          {
+            favoriteproductRefs: Paginate(
+              Match(
+                Index("favoriteproductByCustomer"),
+                Select("ref", Var("customer"))
               )
-              
-          )
+            ),
+            productRefs: Map(
+              Var("favoriteproductRefs"),
+              Lambda(["ref"], 
+              Let(
+                { 
+                  product: Get(Select(["data", "productID"],Get(Var("ref"))))
+                },
+                {
+                  favoriteproductRef: Get(Var("ref")),
+                  product: Var("product")
+                }
+              )
+              )
+            ),
+            favoriteProductSelected: Let(
+            {
+              favoriteproductSelected: Filter(Var("productRefs"),
+                Lambda(
+                  ["favoriteproduct"],
+                    Equals(Var("sku"), Select(["product", "data","sku"], Var("favoriteproduct")))
+                )
+              )
+            },
+              Select([0], Var("favoriteproductSelected"), null)
+            ),
+            favoriteProductStatus: 
+              If(IsNull(Var("favoriteProductSelected")),
+                Create(
+                    Collection("customer_favoriteproducts"), 
+                    {
+                        data: {
+                          customerID: Select(["ref"], Var("customer")),
+                          productID:  Ref(Collection("products"), Select(["ref","id"], Var("product"))),
+                        },
+                      }
+                  ),
+                  Delete(
+                    Ref(Collection("customer_favoriteproducts"), Select(["favoriteproductRef","ref","id"], Var("favoriteProductSelected")))
+                  )
+                )
+          },
+            Var("favoriteProductSelected")
         )
-      )
-    },
-    {
-      customer: Select("data", Var("selectedCustomer")),
-      favoriteproducts: Select("data", Var("favoriteproducts"))
-    }
+      },
+      {
+        message: If(IsNull(Var("favoriteProductSelected")),"favorited", "unfavorited")
+      }
+    )
   )
+)
+});
+
+Update(Function("favouritepurveyor"), {
+  "body":Query(
+  Lambda(
+    ["auth0","purveyorDatocmsId"],
+    Let(
+          {
+            customer: Let(
+              {
+                customers: Map(
+                  Paginate(Match(Index("customerByEmail"), Var("auth0"))),
+                  Lambda("customer", Get(Var("customer")))
+                )
+              },
+              Select([0], Var("customers"), null)
+            ),
+            purveyor: Let(
+              {
+                purveyors: Map(
+                  Paginate(Match(Index("purveyorByDatocmsId"), Var("purveyorDatocmsId"))),
+                  Lambda("purveyor", Get(Var("purveyor")))
+                )
+              },
+              Select([0], Var("purveyors"),null)
+            ),
+            favoritePurveyorExist: Let(
+              {
+                purveyorRef: Map(
+                  Paginate(Documents(Collection("customer_favoritepurveyors"))),
+                  Lambda(["favoritepurveyor"], 
+                    Let(
+                      { 
+                        purveyorExist: Equals(Select(["data","purveyorID","id"], Get(Var("favoritepurveyor")),null), Select(["ref","id"], Var("purveyor"))),
+                        favoritePurveyor: If(Var("purveyorExist"),Get(Var("favoritepurveyor")),null)
+                      },
+                      Var("favoritePurveyor")
+                    )
+                  )
+                ),
+              },
+                Select([0], Var("purveyorRef"), null)
+            ),
+            favoritePurveyorStatus: 
+              If(IsNull(Var("favoritePurveyorExist")),
+                Create(
+                    Collection("customer_favoritepurveyors"), 
+                    {
+                        data: {
+                          customerID: Select(["ref"], Var("customer")),
+                          purveyorID:  Select(["ref"], Var("purveyor")),
+                        },
+                      }
+                  ),
+                  Delete(
+                    Ref(Collection("customer_favoritepurveyors"), Select(["ref","id"], Var("favoritePurveyorExist")))
+                  )
+                )
+          },
+          {
+            message: If(IsNull(Var("favoritePurveyorExist")),"favorited", "unfavorited")
+          }
+        )
   )
 )
 });
@@ -350,35 +447,206 @@ Update(Function("customerProfile"), {
   "body":Query(
   Lambda(
     ["auth0"],
-    Let(
-    {
-      customer: Map(
-        Paginate(Match(Index("customerByEmail"), Var("auth0"))),
-        Lambda("customer", Get(Var("customer")))
-      ),
-      selectedCustomer: Select([0], Var("customer")),
-      favoriteproductRefs: Paginate(
-        Match(
-          Index("favoriteproductByCustomer"),
-          Select("ref", Var("selectedCustomer"))
-        )
-      ),
-      productRefs: Map(
-        Var("favoriteproductRefs"),
-        Lambda(["ref"], Get(Var("ref")))
-      ),
-      favoriteproducts: Map(Var("productRefs"),
-        Lambda(
-          ["favorite"], 
-          Select(["data"],Get(Select(["data", "productID"], Var("favorite"))))
+      Let(
+        {
+          customer: Map(
+            Paginate(Match(Index("customerByEmail"), Var("auth0"))),
+            Lambda("customer", Get(Var("customer")))
+          ),
+          selectedCustomer: Select([0], Var("customer")),
+          favoriteproductRefs: Paginate(
+            Match(
+              Index("favoriteproductByCustomer"),
+              Select("ref", Var("selectedCustomer"))
+            )
+          ),
+          productRefs: Map(
+            Var("favoriteproductRefs"),
+            Lambda(["ref"], Get(Var("ref")))
+          ),
+          favoriteproducts: Map(
+            Var("productRefs"),
+            Lambda(
+              ["favorite"],
+              Select(["data"], Get(Select(["data", "productID"], Var("favorite"))))
+            )
+          ),
+          favoritepurveyors: Let(
+            {
+              favoritepurveyorRefs: Paginate(
+                Match(
+                  Index("favoritepurveyorByCustomer"),
+                  Select("ref", Var("selectedCustomer"))
+                )
+              ),
+              purveyorRefs: Map(
+                Var("favoritepurveyorRefs"),
+                Lambda(["ref"], Get(Var("ref")))
+              ),
+              favoritepurveyors: Map(
+                Var("purveyorRefs"),
+                Lambda(
+                  ["purveyor"],
+                  Select(["data"], Get(Select(["data", "purveyorID"], Var("purveyor"))))
+                )
+              )
+            },
+            Var("favoritepurveyors")
           )
-        )
-    },
-    {
-      customer: Select("data", Var("selectedCustomer")),
-      favoriteproducts: Select("data", Var("favoriteproducts"))
-    }
-  )
+        },
+        {
+          customer: Select("data", Var("selectedCustomer")),
+          favoriteproducts: Select("data", Var("favoriteproducts")),
+          favoritepurveyors: Select("data", Var("favoritepurveyors"))
+        }
+      )
 )
 )
 });
+
+Update(Function("createChecOrder"), {
+"body":Query(
+  Lambda(
+    ["chec_order_id", "chec_id", "cl_order_id", "email", "attributes", "items"],
+    Let(
+      {
+        clOrder: Let(
+          {
+            clOrders: Map(
+              Paginate(Match(Index("clorderByOrderId"), Var("cl_order_id"))),
+              Lambda("c", Get(Var("c")))
+            )
+          },
+          Select([0], Var("clOrders"))
+        ),
+        customer: Let(
+          {
+            customers: Map(
+              Paginate(Match(Index("customerByEmail"), Var("email"))),
+              Lambda("c", Get(Var("c")))
+            )
+          },
+          Select([0], Var("customers"))
+        ),
+        purveyor: Let(
+          {
+            purveyors: Map(
+              Paginate(Match(Index("purveyorByChecId"), Var("chec_id"))),
+              Lambda("p", Get(Var("p")))
+            )
+          },
+          Select([0], Var("purveyors"))
+        ),
+        orderItems: Map(
+          Var("items"),
+          Lambda(
+            "i",
+            Let(
+              {
+                item: Let(
+                  {
+                    products: Map(
+                      Paginate(
+                        Match(Index("productBySKU"), Select("sku", Var("i")))
+                      ),
+                      Lambda("p", Get(Var("p")))
+                    )
+                  },
+                  Select([0], Var("products"))
+                )
+              },
+              {
+                ref: Select("ref", Var("item")),
+                chec_order_item_id: Select("chec_order_item_id", Var("i")),
+                product_id: Select("chec_product_id", Var("i")),
+                sku: Select("sku", Var("i")),
+                product_name: Select("chec_product_name", Var("i")),
+                quantity: Select("quantity", Var("i")),
+                type: Select("type", Var("i")),
+                tax_is_taxable: Select("tax_is_taxable", Var("i")),
+                price_raw: Select("price_raw", Var("i")),
+                price_formatted: Select("price_formatted", Var("i")),
+                line_total_raw: Select("line_total_raw", Var("i")),
+                line_total_formatted: Select("line_total_formatted", Var("i"))
+              }
+            )
+          )
+        )
+      },
+      Do(
+        Create(Collection("checorders"), {
+          data: {
+            chec_order_id: Var("chec_order_id"),
+            cl_order_id: Select("ref", Var("clOrder")),
+            purveyor: Select("ref", Var("purveyor")),
+            customer: Select("ref", Var("customer")),
+            attributes: Var("attributes"),
+            items: Var("orderItems"),
+            created_at: Time("now")
+          }
+        })
+      )
+    )
+  )
+)
+})
+
+Update(Function("createCLOrder"), {
+"body":Query(
+  Lambda(
+    ["cl_order_id", "email", "attributes", "items", "shipping", "billing"],
+    Let(
+      {
+        customer: Let(
+          {
+            customers: Map(
+              Paginate(Match(Index("customerByEmail"), Var("email"))),
+              Lambda("c", Get(Var("c")))
+            )
+          },
+          Select([0], Var("customers"))
+        ),
+        orderItems: Map(
+          Var("items"),
+          Lambda(
+            "i",
+            Let(
+              {
+                item: Let(
+                  {
+                    products: Map(
+                      Paginate(
+                        Match(Index("productBySKU"), Select("sku", Var("i")))
+                      ),
+                      Lambda("p", Get(Var("p")))
+                    )
+                  },
+                  Select([0], Var("products"))
+                )
+              },
+              {
+                ref: Select("ref", Var("item")),
+                sku: Select("sku", Var("i")),
+                quantity: Select("quantity", Var("i"))
+              }
+            )
+          )
+        )
+      },
+      Do(
+        Create(Collection("clorders"), {
+          data: {
+            cl_order_id: Var("cl_order_id"),
+            customer: Select("ref", Var("customer")),
+            attributes: Var("attributes"),
+            shiping: Var("shipping"),
+            billing: Var("billing"),
+            items: Var("orderItems"),
+            created_at: Time("now")
+          }
+        })
+      )
+    )
+  )
+)
+})
