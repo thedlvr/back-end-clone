@@ -199,6 +199,11 @@ type ResponsePaylod @embedded {
   message: String
 }
 
+type CustomerFavoriteProductPaylod @embedded {
+  message: String
+  favoriteProducts: [FavoriteProduct]
+}
+
 type CustomerProfilePayload @embedded {
   customer: CustomerProfile
   favoriteproducts: [FavoriteProduct]
@@ -568,7 +573,7 @@ type Mutation {
     price: String
     datocms_purveyor_id: String
   ): Product! @resolver
-  updateFavouriteProduct(auth0: String!, sku: String!): ResponsePaylod
+  updateFavouriteProduct(auth0: String!, sku: String!): CustomerFavoriteProductPaylod
     @resolver(name: "favouriteproduct", paginated: false)
   updateFavouritePurveyor(
     auth0: String!

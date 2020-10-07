@@ -299,81 +299,120 @@ Update(Function("favouriteproduct"), {
   Lambda(
     ["auth0","sku"],
     Let(
-      {
-        customer: Let(
-          {
-            customers: Map(
-              Paginate(Match(Index("customerByEmail"), Var("auth0"))),
-              Lambda("customer", Get(Var("customer")))
+    {
+      customer: Let(
+        {
+          customers: Map(
+            Paginate(Match(Index("customerByEmail"), Var("auth0"))),
+            Lambda("customer", Get(Var("customer")))
+          )
+        },
+        Select([0], Var("customers"), null)
+      ),
+      product: Let(
+        {
+          products: Map(
+            Paginate(Match(Index("productBySKU"), Var("sku"))),
+            Lambda("product", Get(Var("product")))
+          )
+        },
+        Select([0], Var("products"))
+      ),
+      favoriteProductSelected: Let(
+        {
+          favoriteproductRefs: Paginate(
+            Match(
+              Index("favoriteproductByCustomer"),
+              Select("ref", Var("customer"))
             )
-          },
-          Select([0], Var("customers"), null)
-        ),
-        product: Let(
-          {
-            products: Map(
-              Paginate(Match(Index("productBySKU"), Var("sku"))),
-              Lambda("product", Get(Var("product")))
-            )
-          },
-          Select([0], Var("products"))
-        ),
-        favoriteProductSelected: Let(
-          {
-            favoriteproductRefs: Paginate(
-              Match(
-                Index("favoriteproductByCustomer"),
-                Select("ref", Var("customer"))
-              )
-            ),
-            productRefs: Map(
-              Var("favoriteproductRefs"),
-              Lambda(["ref"], 
+          ),
+          productRefs: Map(
+            Var("favoriteproductRefs"),
+            Lambda(
+              ["ref"],
               Let(
-                { 
-                  product: Get(Select(["data", "productID"],Get(Var("ref"))))
+                {
+                  product: Get(Select(["data", "productID"], Get(Var("ref"))))
                 },
                 {
                   favoriteproductRef: Get(Var("ref")),
                   product: Var("product")
                 }
               )
-              )
-            ),
-            favoriteProductSelected: Let(
+            )
+          ),
+          favoriteProductSelected: Let(
             {
-              favoriteproductSelected: Filter(Var("productRefs"),
+              favoriteproductSelected: Filter(
+                Var("productRefs"),
                 Lambda(
                   ["favoriteproduct"],
-                    Equals(Var("sku"), Select(["product", "data","sku"], Var("favoriteproduct")))
+                  Equals(
+                    Var("sku"),
+                    Select(["product", "data", "sku"], Var("favoriteproduct"))
+                  )
                 )
               )
             },
-              Select([0], Var("favoriteproductSelected"), null)
-            ),
-            favoriteProductStatus: 
-              If(IsNull(Var("favoriteProductSelected")),
-                Create(
-                    Collection("customer_favoriteproducts"), 
-                    {
-                        data: {
-                          customerID: Select(["ref"], Var("customer")),
-                          productID:  Ref(Collection("products"), Select(["ref","id"], Var("product"))),
-                        },
-                      }
-                  ),
-                  Delete(
-                    Ref(Collection("customer_favoriteproducts"), Select(["favoriteproductRef","ref","id"], Var("favoriteProductSelected")))
-                  )
+            Select([0], Var("favoriteproductSelected"), null)
+          ),
+          favoriteProductStatus: If(
+            IsNull(Var("favoriteProductSelected")),
+            Create(Collection("customer_favoriteproducts"), {
+              data: {
+                customerID: Select(["ref"], Var("customer")),
+                productID: Ref(
+                  Collection("products"),
+                  Select(["ref", "id"], Var("product"))
                 )
-          },
-            Var("favoriteProductSelected")
-        )
-      },
-      {
-        message: If(IsNull(Var("favoriteProductSelected")),"favorited", "unfavorited")
-      }
-    )
+              }
+            }),
+            Delete(
+              Ref(
+                Collection("customer_favoriteproducts"),
+                Select(
+                  ["favoriteproductRef", "ref", "id"],
+                  Var("favoriteProductSelected")
+                )
+              )
+            )
+          )
+        },
+        Var("favoriteProductSelected")
+      ),
+      favoriteProductsUpdated: Let(
+        {
+          favoriteproductRefs: Paginate(
+            Match(
+              Index("favoriteproductByCustomer"),
+              Select("ref", Var("customer"))
+            )
+          ),
+          products: Map(
+            Var("favoriteproductRefs"),
+            Lambda(
+              ["ref"],
+              Let(
+                {
+                  product: Get(Select(["data", "productID"], Get(Var("ref"))))
+                },
+                Select("data",Var("product"))
+              )
+            )
+          ),
+        },
+        Select("data", Var("products"), null)
+      )
+    },
+    {
+      message: If(
+        IsNull(Var("favoriteProductSelected")),
+        "favorited",
+        "unfavorited"
+      ),
+      favoriteProducts: Var("favoriteProductsUpdated")
+    }
+  )
   )
 )
 });
