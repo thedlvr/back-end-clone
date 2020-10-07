@@ -53,3 +53,9 @@ CreateIndex({
   source: Collection("customer_favoritepurveyors"),
   terms: [{ field: ["data", "customerID"] }]
 })
+
+CreateIndex({
+ name: "clorderByOrderId",
+ source: Collection("clorders"),
+ terms: [{ field: ["data", "order_id"] }]
+})
