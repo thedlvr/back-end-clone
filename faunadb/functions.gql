@@ -248,12 +248,12 @@ Update(Function("updatePurveyor"), {
   Lambda(
     [
       "datocms_id",
-      "name",
-      "checId",
+      "name",     
       "checSecretKey",
       "checPublicKey",
       "checSandboxSecretKey",
-      "checSandboxPublicKey"
+      "checSandboxPublicKey",
+       "checId"
     ],
     Let(
       {
