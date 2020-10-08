@@ -1,21 +1,17 @@
 function (user, context, callback) {
-  // check app_metadata; is user NOT already added to the API DB?
-//  // inside if logic it should also have && user.app_metadata.added_to_api === undefined
-  //if (user.user_metadata.added_to_api === undefined) {
-    
+  	// check app_metadata; is user NOT already added to the API DB?
+
 		const axios = require('axios');
-    const url = 'https://providore-prod.azure-api.net/customer/create';
+    const url = 'https://providore-xxx.azure-api.net/customer/create';
     const body = { data: user };
 
     // make our API call to add the user
-    axios.post(url, body, {headers: {'content-type': 'application/json','Ocp-Apim-Subscription-Key': '691ae321384e455eaf63d3458bc6a9c9'}})
+    axios.post(url, body, {headers: {'content-type': 'application/json','Ocp-Apim-Subscription-Key': 'xxxxxxxxxxxxxxxxxxxxxx'}})
       .then(() => {
-        // success!! update app_metadata with a flag to record this
-
  				// persist the app_metadata update
  				user.user_metadata = user.user_metadata || {};
-        user.user_metadata.displayName = user.user_metadata.displayName || "user";
-			  // return auth0.users.updateAppMetadata(user.user_id, user.user_metadata);
+        user.user_metadata.isDbAdded = user.user_metadata.isDbAdded || true;
+
         auth0.users.updateUserMetadata(user.user_id, user.user_metadata)
           .then(function(){
             callback(null, user, context);
@@ -24,19 +20,11 @@ function (user, context, callback) {
             callback(err);
           });      
       })
-      .catch(() => {
-      console.log('@@ catch');
-        // ruh-roh! API request failed; record this in app_metadata
-       // user.app_metadata.added_to_api = false;
-//        return auth0.users.updateAppMetadata(user.user_id, user.app_metadata);
+      .catch((error) => {
+      		console.log('@@ catch',error);
         callback('error');
       })
       .then(() => {
-        // keep calm and carry on...
         callback(null, user, context);
       });
- // } else {
-    // they were already added to the API; carry on...
- //   callback(null, user, context);
-  //}
 }
