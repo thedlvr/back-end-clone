@@ -422,62 +422,122 @@ Update(Function("favouritepurveyor"), {
   Lambda(
     ["auth0","purveyorDatocmsId"],
     Let(
+      {
+        customer: Let(
           {
-            customer: Let(
-              {
-                customers: Map(
-                  Paginate(Match(Index("customerByEmail"), Var("auth0"))),
-                  Lambda("customer", Get(Var("customer")))
-                )
-              },
-              Select([0], Var("customers"), null)
-            ),
-            purveyor: Let(
-              {
-                purveyors: Map(
-                  Paginate(Match(Index("purveyorByDatocmsId"), Var("purveyorDatocmsId"))),
-                  Lambda("purveyor", Get(Var("purveyor")))
-                )
-              },
-              Select([0], Var("purveyors"),null)
-            ),
-            favoritePurveyorExist: Let(
-              {
-                purveyorRef: Map(
-                  Paginate(Documents(Collection("customer_favoritepurveyors"))),
-                  Lambda(["favoritepurveyor"], 
-                    Let(
-                      { 
-                        purveyorExist: Equals(Select(["data","purveyorID","id"], Get(Var("favoritepurveyor")),null), Select(["ref","id"], Var("purveyor"))),
-                        favoritePurveyor: If(Var("purveyorExist"),Get(Var("favoritepurveyor")),null)
-                      },
-                      Var("favoritePurveyor")
-                    )
-                  )
-                ),
-              },
-                Select([0], Var("purveyorRef"), null)
-            ),
-            favoritePurveyorStatus: 
-              If(IsNull(Var("favoritePurveyorExist")),
-                Create(
-                    Collection("customer_favoritepurveyors"), 
-                    {
-                        data: {
-                          customerID: Select(["ref"], Var("customer")),
-                          purveyorID:  Select(["ref"], Var("purveyor")),
-                        },
-                      }
-                  ),
-                  Delete(
-                    Ref(Collection("customer_favoritepurveyors"), Select(["ref","id"], Var("favoritePurveyorExist")))
-                  )
-                )
+            customers: Map(
+              Paginate(Match(Index("customerByEmail"), Var("auth0"))),
+              Lambda("customer", Get(Var("customer")))
+            )
           },
+          Select([0], Var("customers"), null)
+        ),
+        purveyor: Let(
           {
-            message: If(IsNull(Var("favoritePurveyorExist")),"favorited", "unfavorited")
-          }
+            purveyors: Map(
+              Paginate(
+                Match(Index("purveyorByDatocmsId"), Var("purveyorDatocmsId"))
+              ),
+              Lambda("purveyor", Get(Var("purveyor")))
+            )
+          },
+          Select([0], Var("purveyors"), null)
+        ),
+        favoritePurveyorSelected: Let(
+        {
+          favoritepurveyorRefs: Paginate(
+            Match(
+              Index("favoritepurveyorByCustomer"),
+              Select("ref", Var("customer"))
+            )
+          ),
+          purveyorRefs: Map(
+            Var("favoritepurveyorRefs"),
+            Lambda(
+              ["ref"],
+              Let(
+                {
+                  purveyor: Get(Select(["data", "purveyorID"], Get(Var("ref"))))
+                },
+                {
+                  favoritepurveyorRef: Get(Var("ref")),
+                  purveyor: Var("purveyor")
+                }
+              )
+            )
+          ),
+          favoritePurveyorSelected: Let(
+            {
+              favoritepurveyorSelected: Filter(
+                Var("purveyorRefs"),
+                Lambda(
+                  ["favoritepurveyor"],
+                  Equals(
+                    Var("purveyorDatocmsId"),
+                    Select(["purveyor", "data", "datocms_id"], Var("favoritepurveyor"),null)
+                  )
+                )
+              )
+            },
+            Select([0], Var("favoritepurveyorSelected"), null)
+          ),
+          favoritePurveyorStatus: If(
+            IsNull(Var("favoritePurveyorSelected")),
+            Create(Collection("customer_favoritepurveyors"), {
+              data: {
+                customerID: Select(["ref"], Var("customer")),
+                purveyorID: Ref(
+                  Collection("purveyors"),
+                  Select(["ref", "id"], Var("purveyor"))
+                )
+              }
+            }),
+            Delete(
+              Ref(
+                Collection("customer_favoritepurveyors"),
+                Select(
+                  ["favoritepurveyorRef", "ref", "id"],
+                  Var("favoritePurveyorSelected")
+                )
+              )
+            )
+          ),
+        },
+          Var("favoritePurveyorSelected")
+        ),
+        favoritePurveyorsUpdated: Let(
+          {
+            favoritepurveyorRefs: Paginate(
+              Match(
+                Index("favoritepurveyorByCustomer"),
+                Select("ref", Var("customer"))
+              )
+            ),
+            purveyors: Map(
+              Var("favoritepurveyorRefs"),
+              Lambda(
+                ["ref"],
+                Let(
+                  {
+                    purveyor: Get(Select(["data", "purveyorID"], Get(Var("ref"))))
+                  },
+                  Select("data",Var("purveyor"))
+                )
+              )
+            ),
+          },
+          Select("data", Var("purveyors"), null)
         )
+      },
+      {
+        message: If(
+          IsNull(Var("favoritePurveyorSelected")),
+          "favorited",
+          "unfavorited"
+        ),
+       favoritePurveyors: Var("favoritePurveyorsUpdated")
+      }
+    )
   )
 )
 });

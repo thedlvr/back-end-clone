@@ -204,6 +204,11 @@ type CustomerFavoriteProductPaylod @embedded {
   favoriteProducts: [FavoriteProduct]
 }
 
+type CustomerFavoritePurveyorPaylod @embedded {
+  message: String
+  favoritePurveyors: [FavoritePurveyor]
+}
+
 type CustomerProfilePayload @embedded {
   customer: CustomerProfile
   favoriteproducts: [FavoriteProduct]
@@ -578,7 +583,7 @@ type Mutation {
   updateFavouritePurveyor(
     auth0: String!
     purveyorDatocmsId: String!
-  ): ResponsePaylod @resolver(name: "favouritepurveyor", paginated: false)
+  ): CustomerFavoritePurveyorPaylod @resolver(name: "favouritepurveyor", paginated: false)
   updateFavouriteRecipe(
     auth0: String!
     recipeDatocmsId: String!
