@@ -48,7 +48,7 @@ type Product @collection(name: "products") {
 }
 
 type Recipe @collection(name: "recipes") {
-  datocmsId: String!
+  datocms_id: String!
   name: String
   featured_image: String
   datocms_purveyor_id: String
@@ -206,10 +206,6 @@ type CLOrder @collection(name: "clorders") {
   created_at: Int
 }
 
-type ResponsePaylod @embedded {
-  message: String
-}
-
 type CustomerFavoriteProductPaylod @embedded {
   message: String
   favoriteProducts: [FavoriteProduct]
@@ -220,10 +216,16 @@ type CustomerFavoritePurveyorPaylod @embedded {
   favoritePurveyors: [FavoritePurveyor]
 }
 
+type CustomerFavoriteRecipePaylod @embedded {
+  message: String
+  favoriteRecipes: [FavoriteRecipe]
+}
+
 type CustomerProfilePayload @embedded {
   customer: CustomerProfile
   favoriteproducts: [FavoriteProduct]
   favoritepurveyors: [FavoritePurveyor]
+  favoriteRecipes: [FavoriteRecipe]
 }
 
 type CustomerProfile @embedded {
@@ -261,6 +263,23 @@ type FavoriteProduct @embedded {
 type FavoritePurveyor @embedded {
   datocms_id: String!
   name: String
+}
+
+type FavoriteRecipe @embedded {
+  datocms_id: String
+  name: String
+  featured_image: String
+  datocms_purveyor_id: String
+  datocms_main_category_id: String
+  datocms_sub_categories: [String]
+  datocms_tags: [String]
+  duration: Int
+  difficulty: String
+  taste: String
+  summary: String
+  datocms_methods: [String]
+  authors_tip: String
+  is_trending: String
 }
 
 type CLOrderSKUsOutput @embedded {
@@ -442,27 +461,6 @@ input CLOrderAttributeInput {
   reference_origin: String
 }
 
-# input CLOrderSKUsInput {
-#   # order: CLOrderInput
-#   code: String
-#   name: String
-#   description: String
-#   image_url: String
-#   pieces_per_pack: String
-#   weight: Int
-#   unit_of_weight: String
-#   hs_tariff_number: String
-#   created_at: String
-#   updated_at: String
-#   reference: String
-#   reference_origin: String
-# }
-
-# input CLOrderInput {
-#    orderId: String!
-#    attributes: CLOrderAttributeInput!
-# }
-
 input CLOrderSKUInput {
   sku: String
   quantity: Int
@@ -551,7 +549,6 @@ type Query {
 }
 
 type Mutation {
-  #  addCLOrder(orderId: String!, attributes: CLOrderAttributeInput!): CLOrder! @resolver
   createCLOrder(
     cl_order_id: String!
     email: String!
@@ -568,7 +565,6 @@ type Mutation {
     attributes: ChecOrderAttributeInput!
     items: [ChecOrderSKUInput!]
   ): ChecOrder! @resolver
-  #updateCLOrder(orderId: String!, attributes: CLOrderAttributeInput, items: [CLOrderSKUsInput]): CLOrder! @resolver
   updatePurveyor(
     datocms_id: String!
     name: String
@@ -598,5 +594,5 @@ type Mutation {
   updateFavouriteRecipe(
     auth0: String!
     recipeDatocmsId: String!
-  ): ResponsePaylod @resolver(name: "favouriterecipe", paginated: false)
+  ): CustomerFavoriteRecipePaylod @resolver(name: "favouriterecipe", paginated: false)
 }

@@ -59,3 +59,15 @@ CreateIndex({
  source: Collection("clorders"),
  terms: [{ field: ["data", "order_id"] }]
 })
+
+CreateIndex({
+  name: "recipeByDatocmsId",
+  source: Collection("recipes"),
+  terms: [{ field: ["data", "datocms_id"] }]
+})
+
+CreateIndex({
+  name: "favoriterecipeByCustomer",
+  source: Collection("customer_favoriterecipes"),
+  terms: [{ field: ["data", "customerID"] }]
+})
