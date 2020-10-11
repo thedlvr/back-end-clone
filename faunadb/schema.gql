@@ -50,7 +50,18 @@ type Product @collection(name: "products") {
 type Recipe @collection(name: "recipes") {
   datocmsId: String!
   name: String
-  datocmsPurveyorId: String!
+  featured_image: String
+  datocms_purveyor_id: String
+  datocms_main_category_id: String
+  datocms_sub_categories: [String]
+  datocms_tags: [String]
+  duration: Int
+  difficulty: String
+  taste: String
+  summary: String
+  datocms_methods: [String]
+  authors_tip: String
+  is_trending: String
   customers: [Customer] @relation
 }
 
