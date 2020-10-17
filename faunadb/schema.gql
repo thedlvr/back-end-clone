@@ -225,7 +225,7 @@ type CustomerProfilePayload @embedded {
   customer: CustomerProfile
   favoriteproducts: [FavoriteProduct]
   favoritepurveyors: [FavoritePurveyor]
-  favoriteRecipes: [FavoriteRecipe]
+  favoriterecipes: [FavoriteRecipe]
 }
 
 type CustomerProfile @embedded {

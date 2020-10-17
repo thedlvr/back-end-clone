@@ -547,58 +547,84 @@ Update(Function("customerProfile"), {
   Lambda(
     ["auth0"],
       Let(
-        {
-          customer: Map(
-            Paginate(Match(Index("customerByEmail"), Var("auth0"))),
-            Lambda("customer", Get(Var("customer")))
-          ),
-          selectedCustomer: Select([0], Var("customer")),
-          favoriteproductRefs: Paginate(
-            Match(
-              Index("favoriteproductByCustomer"),
-              Select("ref", Var("selectedCustomer"))
-            )
-          ),
-          productRefs: Map(
-            Var("favoriteproductRefs"),
-            Lambda(["ref"], Get(Var("ref")))
-          ),
-          favoriteproducts: Map(
-            Var("productRefs"),
-            Lambda(
-              ["favorite"],
-              Select(["data"], Get(Select(["data", "productID"], Var("favorite"))))
-            )
-          ),
-          favoritepurveyors: Let(
-            {
-              favoritepurveyorRefs: Paginate(
-                Match(
-                  Index("favoritepurveyorByCustomer"),
-                  Select("ref", Var("selectedCustomer"))
-                )
-              ),
-              purveyorRefs: Map(
-                Var("favoritepurveyorRefs"),
-                Lambda(["ref"], Get(Var("ref")))
-              ),
-              favoritepurveyors: Map(
-                Var("purveyorRefs"),
-                Lambda(
-                  ["purveyor"],
-                  Select(["data"], Get(Select(["data", "purveyorID"], Var("purveyor"))))
+      {
+        customer: Map(
+          Paginate(Match(Index("customerByEmail"), Var("auth0"))),
+          Lambda("customer", Get(Var("customer")))
+        ),
+        selectedCustomer: Select([0], Var("customer")),
+        favoriteproductRefs: Paginate(
+          Match(
+            Index("favoriteproductByCustomer"),
+            Select("ref", Var("selectedCustomer"))
+          )
+        ),
+        productRefs: Map(
+          Var("favoriteproductRefs"),
+          Lambda(["ref"], Get(Var("ref")))
+        ),
+        favoriteproducts: Map(
+          Var("productRefs"),
+          Lambda(
+            ["favorite"],
+            Select(["data"], Get(Select(["data", "productID"], Var("favorite"))))
+          )
+        ),
+        favoritepurveyors: Let(
+          {
+            favoritepurveyorRefs: Paginate(
+              Match(
+                Index("favoritepurveyorByCustomer"),
+                Select("ref", Var("selectedCustomer"))
+              )
+            ),
+            purveyorRefs: Map(
+              Var("favoritepurveyorRefs"),
+              Lambda(["ref"], Get(Var("ref")))
+            ),
+            favoritepurveyors: Map(
+              Var("purveyorRefs"),
+              Lambda(
+                ["purveyor"],
+                Select(
+                  ["data"],
+                  Get(Select(["data", "purveyorID"], Var("purveyor")))
                 )
               )
-            },
-            Var("favoritepurveyors")
-          )
-        },
-        {
-          customer: Select("data", Var("selectedCustomer")),
-          favoriteproducts: Select("data", Var("favoriteproducts")),
-          favoritepurveyors: Select("data", Var("favoritepurveyors"))
-        }
-      )
+            )
+          },
+          Var("favoritepurveyors")
+        ),
+        favoriterecipes: Let(
+          {
+            favoriterecipeRefs: Paginate(
+              Match(
+                Index("favoriterecipeByCustomer"),
+                Select("ref", Var("selectedCustomer"))
+              )
+            ),
+            recipeRefs: Map(
+              Var("favoriterecipeRefs"),
+              Lambda(["ref"], Get(Var("ref")))
+            ),
+            favoriterecipes: Map(
+              Var("recipeRefs"),
+              Lambda(
+                ["recipe"],
+                Select(["data"], Get(Select(["data", "recipeID"], Var("recipe"))))
+              )
+            )
+          },
+          Var("favoriterecipes")
+        )
+      },
+      {
+        customer: Select("data", Var("selectedCustomer")),
+        favoriteproducts: Select("data", Var("favoriteproducts")),
+        favoritepurveyors: Select("data", Var("favoritepurveyors")),
+        favoriterecipes: Select("data", Var("favoriterecipes"))
+      }
+    )
 )
 )
 });
