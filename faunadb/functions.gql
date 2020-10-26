@@ -902,3 +902,55 @@ Update(Function("favouriterecipe"), {
   )
 )
 });
+
+Update(Function("recipeByDatocmsId"), {
+  "body":Query(
+  Lambda(
+    ["datocmsId"],
+    Let(
+      {
+        recipe: Map(
+          Paginate(Match(Index("recipeByDatocmsId"), Var("datocmsId"))),
+          Lambda("recipe", Get(Var("recipe")))
+        )
+      },
+      Select(["data"], Var("recipe"),null)
+    )
+  )
+)
+});
+
+Update(Function("updateRecipe"), {
+  "body":Query(
+  Lambda(
+    [
+      "datocms_id",
+      "name",     
+      "datocms_purveyor_id",
+      "datocms_main_category_id",
+      "datocms_sub_categories",
+      "datocms_tags",
+      "duration",
+      "authors_tip",
+      "difficulty",
+      "datocms_methods",
+      "featured_image",
+      "is_trending",
+      "summary"
+    ],
+    Let(
+      {
+        recipe: Map(
+          Paginate(Match(Index("recipeByDatocmsId"), Var("datocms_id"))),
+          Lambda("recipe", Get(Var("recipe")))
+        )
+      },
+      Update(Select("ref", Select([0], Var("recipe"))), {
+        data: {
+          name: Var("name"),
+        }
+      })
+    )
+  )
+)
+});

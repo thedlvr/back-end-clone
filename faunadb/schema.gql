@@ -546,6 +546,8 @@ type Query {
     @resolver(name: "customerByEmail", paginated: false)
   customerProfileByAuth0(auth0: String!): CustomerProfilePayload
     @resolver(name: "customerProfile", paginated: false)
+  recipeByDatocmsId(datocmsId: String!): [Recipe!]
+    @resolver(name: "recipeByDatocmsId", paginated: false)
 }
 
 type Mutation {
@@ -595,4 +597,19 @@ type Mutation {
     auth0: String!
     recipeDatocmsId: String!
   ): CustomerFavoriteRecipePaylod @resolver(name: "favouriterecipe", paginated: false)
+  updateRecipe(
+    datocms_id: String!
+    name: String
+    datocms_purveyor_id: String
+    datocms_main_category_id: String
+    datocms_sub_categories: [String]
+    datocms_tags: [String]
+    duration: String
+    authors_tip: String
+    difficulty: String
+    datocms_methods: [String]
+    featured_image: String
+    is_trending: String
+    summary: String
+  ): Recipe! @resolver
 }
