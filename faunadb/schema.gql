@@ -1,10 +1,11 @@
-type Customer @collection(name: "customers") {
+type User @collection(name: "users") {
   auth0_id: String
   user_id: String
   user_id_withauth0: String
   name: String
   nickname: String
   email: String
+  usertype: String #Enum#
   email_verified: String
   picture_url: String
   global_client_id: String
@@ -12,24 +13,35 @@ type Customer @collection(name: "customers") {
   is_social: String
   client_id: String
   provider: String
-  favoriteproducts: [Product] @relation
-  favoritepurveyors: [Purveyor] @relation
-  favoriterecipes: [Recipe] @relation
-  cl_orders: [CLOrder] @relation
   created_at: String
   updated_at: String
-  chec_orders: [ChecOrder] @relation
+  purveyor_profile: PurveyorProfile @relation
+  favorite_products: [Product] @relation
+  favorite_purveyors: [User] @relation
+  favorite_recipes: [Recipe] @relation
+  cl_orders: [CLOrder] @relation
+  purveyor_orders: [ChecOrder] @relation
 }
 
-type Purveyor @collection(name: "purveyors") {
-  datocms_id: String!
-  name: String
-  checId: String!
-  checPublicKey: String!
-  checSecretKey: String!
-  checSandboxPublicKey: String!
-  checSandboxSecretKey: String!
-  customers: [Customer] @relation
+# type UserProfile @collection(name: "userprofiles") {
+#   datocms_id: String!
+#   name: String
+#   checId: String!
+#   user: User!
+# }
+
+type PurveyorProfile @collection(name: "purveyorprofiles") {
+  user: User!
+  datocms_id: Number!
+  purveyor_code: Number!
+  slug: String
+  tag_line: String
+  featured_image: String
+  location_lat: String
+  location_long: String
+  location_name: String
+  featured_products: [Product] @relation
+  purveyor_major_categories: [Number]
 }
 
 type Product @collection(name: "products") {
@@ -44,7 +56,7 @@ type Product @collection(name: "products") {
   product_variant: String
   dietary_tag: String
   cl_id: String
-  customers: [Customer] @relation
+  users: [User] @relation
 }
 
 type Recipe @collection(name: "recipes") {
@@ -62,7 +74,7 @@ type Recipe @collection(name: "recipes") {
   datocms_methods: [String]
   authors_tip: String
   is_trending: String
-  customers: [Customer] @relation
+  users: [User] @relation
 }
 
 type CLOrderAttribute @embedded {
@@ -587,16 +599,21 @@ type Mutation {
     price: String
     datocms_purveyor_id: String
   ): Product! @resolver
-  updateFavouriteProduct(auth0: String!, sku: String!): CustomerFavoriteProductPaylod
+  updateFavouriteProduct(
+    auth0: String!
+    sku: String!
+  ): CustomerFavoriteProductPaylod
     @resolver(name: "favouriteproduct", paginated: false)
   updateFavouritePurveyor(
     auth0: String!
     purveyorDatocmsId: String!
-  ): CustomerFavoritePurveyorPaylod @resolver(name: "favouritepurveyor", paginated: false)
+  ): CustomerFavoritePurveyorPaylod
+    @resolver(name: "favouritepurveyor", paginated: false)
   updateFavouriteRecipe(
     auth0: String!
     recipeDatocmsId: String!
-  ): CustomerFavoriteRecipePaylod @resolver(name: "favouriterecipe", paginated: false)
+  ): CustomerFavoriteRecipePaylod
+    @resolver(name: "favouriterecipe", paginated: false)
   updateRecipe(
     datocms_id: String!
     name: String
