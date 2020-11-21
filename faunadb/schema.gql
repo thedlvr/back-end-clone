@@ -17,7 +17,7 @@ type User @collection(name: "users") {
   updated_at: String
   purveyor_profile: PurveyorProfile @relation
   favorite_products: [Product] @relation
-  favorite_purveyors: [User] @relation
+  favorite_purveyors: [User] 
   favorite_recipes: [Recipe] @relation
   cl_orders: [CLOrder] @relation
   purveyor_orders: [ChecOrder] @relation
@@ -31,17 +31,17 @@ type User @collection(name: "users") {
 # }
 
 type PurveyorProfile @collection(name: "purveyorprofiles") {
-  user: User!
-  datocms_id: Number!
-  purveyor_code: Number!
+  user: User! @relation
+  datocms_id: Int!
+  purveyor_code: Int!
   slug: String
   tag_line: String
   featured_image: String
   location_lat: String
   location_long: String
   location_name: String
-  featured_products: [Product] @relation
-  purveyor_major_categories: [Number]
+  featured_products: [Product]
+  purveyor_major_categories: [Int]
 }
 
 type Product @collection(name: "products") {
@@ -57,6 +57,7 @@ type Product @collection(name: "products") {
   dietary_tag: String
   cl_id: String
   users: [User] @relation
+  purveyor_profile: PurveyorProfile
 }
 
 type Recipe @collection(name: "recipes") {
@@ -209,7 +210,7 @@ type CLOrderSKU @embedded {
 
 type CLOrder @collection(name: "clorders") {
   cl_order_id: String
-  customer: Customer @relation
+  customer: User @relation
   attributes: CLOrderAttribute
   items: [CLOrderSKU]
   shipping: CLAddress
@@ -337,11 +338,11 @@ type ChecOrderAttribute @embedded {
 
 type ChecOrder @collection(name: "checorders") {
   chec_order_id: String!
-  purveyor: Purveyor
+  purveyor: User
   attributes: ChecOrderAttribute
   cl_order: CLOrder @relation
   items: [ChecOrderSKU]
-  customer: Customer @relation
+  customer: User @relation
   created_at: Int
 }
 
@@ -547,14 +548,14 @@ input ChecOrderSKUInput {
 type Query {
   allOrders: [CLOrder!]
   clorderByOrderId(cl_order_id: String): [CLOrder!]
-  allPurveyors: [Purveyor!]
-  purveyorByChecId(checId: String!): [Purveyor!]
+  allPurveyors: [User!]
+  purveyorByChecId(checId: String!): [User!]
     @resolver(name: "purveyorByChecId", paginated: false)
   clorderSkusByPurveyor(orderId: String!): clorderSkusPayload!
     @resolver(name: "getSkusByPurveyor", paginated: false)
-  purveyorByDatocmsId(datocmsId: String!): [Purveyor!]
+  purveyorByDatocmsId(datocmsId: String!): [User!]
     @resolver(name: "purveyorByDatocmsId", paginated: false)
-  customerByEmail(email: String!): [Customer!]
+  customerByEmail(email: String!): [User!]
     @resolver(name: "customerByEmail", paginated: false)
   customerProfileByAuth0(auth0: String!): CustomerProfilePayload
     @resolver(name: "customerProfile", paginated: false)
@@ -587,7 +588,7 @@ type Mutation {
     checPublicKey: String
     checSandboxPublicKey: String
     checId: String
-  ): Purveyor! @resolver
+  ): User! @resolver
   productUpdateByDatocmsId(
     datocms_id: String!
     name: String
