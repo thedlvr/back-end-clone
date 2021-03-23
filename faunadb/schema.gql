@@ -1,20 +1,21 @@
+# COLLECTIONS
 type User @collection(name: "users") {
+  auth0_client_id: String
+  auth0_created_at: String
+  auth0_email: String @unique
+  auth0_email_verified: String
+  auth0_global_client_id: String
   auth0_id: String
-  user_id: String
-  user_id_withauth0: String
-  name: String
-  nickname: String
-  email: String
-  usertype: String #Enum#
-  email_verified: String
-  picture_url: String
-  global_client_id: String
-  connection: String
-  is_social: String
-  client_id: String
-  provider: String
-  created_at: String
-  updated_at: String
+  auth0_identities0_connection: String
+  auth0_identities0_issocial: String
+  auth0_identities0_provider: String
+  auth0_identities0_user_id: String
+  auth0_name: String
+  auth0_nickname: String
+  auth0_picture: String
+  auth0_updated_at: String
+  auth0_user_id: String
+  user_type: String
   purveyor_profile: PurveyorProfile @relation
   favorite_products: [Product] @relation
   favorite_purveyors: [User] 
@@ -545,7 +546,11 @@ input ChecOrderSKUInput {
 
 # END OF INPUT
 
+# QUERIES
 type Query {
+  allUsers: [User!]
+  userByEmail(email: String!): [User]!
+    @resolver(name: "userByEmail")
   allOrders: [CLOrder!]
   clorderByOrderId(cl_order_id: String): [CLOrder!]
   allPurveyors: [User!]

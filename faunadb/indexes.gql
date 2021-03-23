@@ -1,4 +1,12 @@
 CreateIndex({
+  name: "userByEmail",
+  unique: false,
+  serialized: true,
+  source: Collection("users"),
+  terms: [{field: ["data", "auth0_email"]}]
+})
+
+CreateIndex({
   name: "clordersku_by_clorder",
   source: Collection("clorderskus"),
   terms: [{ field: ["data", "order", "data", "id"] }],
