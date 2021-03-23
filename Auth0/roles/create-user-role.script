@@ -1,0 +1,25 @@
+async function (user, context, callback) {
+  user.user_metadata = user.user_metadata || {};
+  user.user_metadata.user_type = user.user_metadata.user_type || "Customer";
+  console.log(`\n\n[CREATE USER RULE USER]: ${JSON.stringify(user)}`);
+  try {
+    const axios = require('axios');
+    const config = {
+      method: configuration.postMethod,
+      url: configuration.createUserMasterLatestUrl,
+      headers: {
+        'Ocp-Apim-Subscription-Key': configuration.ocpApimSubscriptionKey,
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify(user)
+    };
+
+    await axios(config);
+    user.user_metadata.isDbAdded = user.user_metadata.isDbAdded || true;
+  } catch (error) {
+    console.log(`\n\n[CREATE USER RULE ERROR]: ${error.message}`);
+    return callback(error);
+  }
+  await auth0.users.updateUserMetadata(user.user_id, user.user_metadata);
+  return callback(null, user, context);
+}
