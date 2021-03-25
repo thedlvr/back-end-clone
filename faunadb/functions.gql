@@ -1,18 +1,18 @@
 Update(Function("getUserByEmail"), {
   "body":Query(
-  Lambda(
-    ["auth0_email"],
-    Let(
-      {
-        users: Map(
-          Paginate(Match(Index("getUserByEmail"), Var("auth0_email"))),
-          Lambda("users", Get(Var("users")))
-        )
-      },
-      Select(["data"],Var("users"))
+    Lambda(
+      ["auth0_email"],
+      Let(
+        {
+          users: Map(
+            Paginate(Match(Index("getUserByEmail"), Var("auth0_email"))),
+            Lambda("users", Get(Var("users")))
+          )
+        },
+        Select(["data"], Var("users"))
+      )
     )
   )
-)
 });
 
 Update(Function("addCLOrder"), {
