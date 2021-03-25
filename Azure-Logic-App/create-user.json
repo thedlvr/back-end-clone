@@ -4,7 +4,7 @@
     "actions": {
       "Check_User_Type": {
         "actions": {
-          "Check_Purveyor_exists_or_not": {
+          "Check_Purveyor_not_exist": {
             "actions": {
               "Create_Purveyor_in_DatoCMS": {
                 "inputs": {
@@ -55,7 +55,7 @@
                   "body": "@body('Create_Purveyor_in_DatoCMS')",
                   "statusCode": "@outputs('Create_Purveyor_in_DatoCMS')['statusCode']"
                 },
-                "kind": "Http",
+                "kind": "http",
                 "runAfter": {
                   "Create_Purveyor_in_DatoCMS": [
                     "Succeeded",
@@ -72,7 +72,7 @@
                     "body": "@body('Find_Purveyor_in_DatoCMS')",
                     "statusCode": "@outputs('Find_Purveyor_in_DatoCMS')['statusCode']"
                   },
-                  "kind": "Http",
+                  "kind": "http",
                   "runAfter": {},
                   "type": "Response"
                 }
@@ -279,12 +279,12 @@
         },
         "else": {
           "actions": {
-            "Check_Customer_exists_or_not": {
+            "Check_Customer_not_exist": {
               "actions": {
                 "Create_Customer_in_FaunaDB": {
                   "inputs": {
                     "body": {
-                      "query": "mutation { createUser(data:{ auth0_id: \"@{triggerBody()?['_id']}\" auth0_client_id: \"@{triggerBody()?['clientID']}\" auth0_created_at: \"@{triggerBody()?['created_at']}\" auth0_email: \"@{triggerBody()?['email']}\" auth0_email_verified: \"@{triggerBody()?['email_verified']}\" auth0_identities0_connection: \"@{first(triggerBody()?['identities'])?['connection']}\" auth0_identities0_provider: \"@{first(triggerBody()?['identities'])?['provider']}\" auth0_identities0_user_id: \"@{first(triggerBody()?['identities'])?['user_id']}\" auth0_identities0_issocial: \"@{first(triggerBody()?['identities'])?['isSocial']}\" auth0_name: \"@{triggerBody()?['name']}\" auth0_nickname: \"@{triggerBody()?['nickname']}\" auth0_picture: \"@{triggerBody()?['picture']}\" auth0_updated_at: \"@{triggerBody()?['updated_at']}\" auth0_user_id: \"@{triggerBody()?['user_id']}\" auth0_global_client_id: \"@{triggerBody()?['global_client_id']}\" user_type: \"@{triggerBody()?['user_metadata']?['user_type']}\"  }){ _id }}"
+                      "query": "mutation { createUser(data:{ auth0_id: \"@{triggerBody()?['_id']}\" auth0_client_id: \"@{triggerBody()?['clientID']}\" auth0_created_at: \"@{triggerBody()?['created_at']}\" auth0_email: \"@{triggerBody()?['email']}\" auth0_email_verified: \"@{triggerBody()?['email_verified']}\" auth0_identities0_connection: \"@{first(triggerBody()?['identities'])?['connection']}\" auth0_identities0_provider: \"@{first(triggerBody()?['identities'])?['provider']}\" auth0_identities0_user_id: \"@{first(triggerBody()?['identities'])?['user_id']}\" auth0_identities0_issocial: \"@{first(triggerBody()?['identities'])?['isSocial']}\" auth0_name: \"@{triggerBody()?['name']}\" auth0_nickname: \"@{triggerBody()?['nickname']}\" auth0_picture: \"@{triggerBody()?['picture']}\" auth0_updated_at: \"@{triggerBody()?['updated_at']}\" auth0_user_id: \"@{triggerBody()?['user_id']}\" auth0_global_client_id: \"@{triggerBody()?['global_client_id']}\" auth0_user_type: CUSTOMER created_at: \"@{triggerBody()?['created_at']}\"  }){ _id }}"
                     },
                     "headers": {
                       "Authorization": "@parameters('FaunaDBAuthorizationToken')",
@@ -301,7 +301,7 @@
                     "body": "@body('Create_Customer_in_FaunaDB')",
                     "statusCode": "@outputs('Create_Customer_in_FaunaDB')['statusCode']"
                   },
-                  "kind": "Http",
+                  "kind": "http",
                   "runAfter": {
                     "Create_Customer_in_FaunaDB": [
                       "Succeeded",
@@ -318,7 +318,7 @@
                       "body": "@body('Find_Customer_in_FaunaDB')",
                       "statusCode": "@outputs('Find_Customer_in_FaunaDB')['statusCode']"
                     },
-                    "kind": "Http",
+                    "kind": "http",
                     "runAfter": {},
                     "type": "Response"
                   }
@@ -344,7 +344,7 @@
             "Find_Customer_in_FaunaDB": {
               "inputs": {
                 "body": {
-                  "query": "query  { userByEmail(email:\"@{triggerBody()?['email']}\")  { _id }}"
+                  "query": "query  { getUserByEmail(email:\"@{triggerBody()?['email']}\")  { _id }}"
                 },
                 "headers": {
                   "Authorization": "@parameters('FaunaDBAuthorizationToken')",
@@ -363,7 +363,7 @@
                   "properties": {
                     "data": {
                       "properties": {
-                        "userByEmail": {
+                        "getUserByEmail": {
                           "items": {
                             "properties": {
                               "_id": {
@@ -398,7 +398,7 @@
             {
               "equals": [
                 "@triggerBody()?['user_metadata']?['user_type']",
-                "Purveyor"
+                "@parameters('UserTypePurveyor')"
               ]
             }
           ]
@@ -431,11 +431,15 @@
         "type": "String"
       },
       "FaunaDBAuthorizationToken": {
-        "defaultValue": "Basic Zm5BRUU2dnVPb0FDQXZ4SkljM2R5LUlMWVZjWnFMMU94TDI1b2tnWDpQcm92aWRvcmUtTWFzdGVyTGF0ZXN0OnNlcnZlcg==",
+        "defaultValue": "Basic Zm5BRUU2dnVPb0FDQXZ4SkljM2R5LUlMWVZjWnFMMU94TDI1b2tnWDpncWwtZGVtbzpzZXJ2ZXI=",
         "type": "String"
       },
       "FaunaDBURL": {
         "defaultValue": "https://graphql.fauna.com/graphql",
+        "type": "String"
+      },
+      "UserTypePurveyor": {
+        "defaultValue": "Purveyor",
         "type": "String"
       }
     },

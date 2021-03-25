@@ -1,6 +1,7 @@
 async function (user, context, callback) {
   user.user_metadata = user.user_metadata || {};
-  user.user_metadata.user_type = user.user_metadata.user_type || "Customer";
+  user.user_metadata.user_type = user.user_metadata.user_type || "Purveyor";
+  // user.user_metadata.user_type = user.user_metadata.user_type || "Customer";
   console.log(`\n\n[CREATE USER RULE USER]: ${JSON.stringify(user)}`);
   try {
     const axios = require('axios');

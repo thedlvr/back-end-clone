@@ -1,11 +1,11 @@
-Update(Function("userByEmail"), {
+Update(Function("getUserByEmail"), {
   "body":Query(
   Lambda(
     ["auth0_email"],
     Let(
       {
         users: Map(
-          Paginate(Match(Index("userByEmail"), Var("auth0_email"))),
+          Paginate(Match(Index("getUserByEmail"), Var("auth0_email"))),
           Lambda("users", Get(Var("users")))
         )
       },
