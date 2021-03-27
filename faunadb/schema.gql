@@ -226,7 +226,7 @@ type Mutation {
     auth0: String!
     purveyorDatocmsId: String!
   ): UserFavoritePurveyorPaylod
-    @resolver(name: "favouritepurveyor", paginated: false)
+    @resolver(name: "favouritePurveyor", paginated: false)
 
   updateFavouriteRecipe(
     auth0: String!
