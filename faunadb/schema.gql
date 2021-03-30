@@ -1,26 +1,25 @@
 # User Collections
 
 type User @collection(name: "users") {
-  auth0_id: String
-  auth0_user_id: String
-  auth0_user_id_withauth0: String
-  auth0_name: String
-  auth0_nickname: String
-  auth0_email: String
+  auth0_client_id: String
+  auth0_created_at: String
+  auth0_email: String @unique
   auth0_email_verified: String
   auth0_global_client_id: String
-  auth0_connection: String
-  auth0_is_social: String
-  auth0_client_id: String
-  auth0_provider: String
-  auth0_created_at: String
+  auth0_id: String
+  auth0_identities0_connection: String
+  auth0_identities0_issocial: String
+  auth0_identities0_provider: String
+  auth0_identities0_user_id: String
+  auth0_name: String
+  auth0_nickname: String
+  auth0_picture: String
   auth0_updated_at: String
-  picture_url: String
-  usertype: String
+  auth0_user_id: String
+  auth0_user_type: UserType
   purveyor_profile: PurveyorProfile @relation
   favorite_products: [Product] @relation(name: "user_favorite_products")
-  favorite_purveyors: [PurveyorProfile]
-    @relation(name: "user_favorite_purveyors")
+  favorite_purveyors: [PurveyorProfile] @relation(name: "user_favorite_purveyors")
   favorite_recipes: [Recipe] @relation(name: "user_favorite_recipes")
   created_at: String
 }
@@ -109,7 +108,7 @@ type Recipe @collection(name: "recipes") {
 
 # Custom Payloads
 
-type CustomerFavoriteProductPaylod @embedded {
+type UserFavoriteProductPaylod @embedded {
   message: String
   favoriteProducts: [FavoriteProduct]
 }
@@ -127,7 +126,7 @@ type FavoriteProduct @embedded {
   cl_id: String
 }
 
-type CustomerFavoritePurveyorPaylod @embedded {
+type UserFavoritePurveyorPaylod @embedded {
   message: String
   favoritePurveyors: [FavoritePurveyor]
 }
@@ -137,7 +136,7 @@ type FavoritePurveyor @embedded {
   name: String
 }
 
-type CustomerFavoriteRecipePaylod @embedded {
+type UserFavoriteRecipePaylod @embedded {
   message: String
   favoriteRecipes: [FavoriteRecipe]
 }
@@ -159,22 +158,28 @@ type FavoriteRecipe @embedded {
   is_trending: String
 }
 
+#Enums
+
+enum UserType {
+  CUSTOMER
+  PURVEYOR
+} 
+
 # Inputs
 
 # Queries
 
 type Query {
+  allUsers: [User!]
+  # used to get user record by email address. used in create customer logic app, previous name -> customerByEmail
+  getUserByEmail(email: String!): [User]! @resolver(name: "getUserByEmail", paginated: false)
+  # used to get user's profile in nextjs app, previous name -> customerProfileByAuth0. used in get customer logic app
+  getUserByAuth0(auth0: String!): User @resolver(name: "getUserByAuth0", paginated: false)
   allPurveyors: [User!]
   purveyorByChecId(checId: String!): [User!]
     @resolver(name: "purveyorByChecId", paginated: false)
   purveyorByDatocmsId(datocmsId: String!): [User!]
     @resolver(name: "purveyorByDatocmsId", paginated: false)
-  # used to get user record by email address. used in create customer logic app, previous name -> customerByEmail
-  getUserByEmail(email: String!): [User!]
-    @resolver(name: "getUserByEmail", paginated: false)
-  # used to get user's profile in nextjs app, previous name -> customerProfileByAuth0. used in get customer logic app
-  getUserByAuth0(auth0: String!): User
-    @resolver(name: "getUserByAuth0", paginated: false)
   recipeByDatocmsId(datocmsId: String!): [Recipe!]
     @resolver(name: "recipeByDatocmsId", paginated: false)
 }
@@ -214,19 +219,19 @@ type Mutation {
   updateFavouriteProduct(
     auth0: String!
     sku: String!
-  ): CustomerFavoriteProductPaylod
+  ): UserFavoriteProductPaylod
     @resolver(name: "favouriteproduct", paginated: false)
 
   updateFavouritePurveyor(
     auth0: String!
     purveyorDatocmsId: String!
-  ): CustomerFavoritePurveyorPaylod
-    @resolver(name: "favouritepurveyor", paginated: false)
+  ): UserFavoritePurveyorPaylod
+    @resolver(name: "favouritePurveyor", paginated: false)
 
   updateFavouriteRecipe(
     auth0: String!
     recipeDatocmsId: String!
-  ): CustomerFavoriteRecipePaylod
+  ): UserFavoriteRecipePaylod
     @resolver(name: "favouriterecipe", paginated: false)
 
   updateRecipe(

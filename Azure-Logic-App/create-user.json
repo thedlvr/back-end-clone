@@ -1,0 +1,533 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "Check_User_Type": {
+        "actions": {
+          "Check_Purveyor_not_exist": {
+            "actions": {
+              "Create_Purveyor_in_DatoCMS": {
+                "inputs": {
+                  "body": {
+                    "data": {
+                      "attributes": {
+                        "auth0_client_id": "@{triggerBody()?['clientID']}",
+                        "auth0_created_at": "@{triggerBody()?['created_at']}",
+                        "auth0_email": "@{triggerBody()?['email']}",
+                        "auth0_email_verified": "@triggerBody()?['email_verified']",
+                        "auth0_global_client_id": "@{triggerBody()?['global_client_id']}",
+                        "auth0_id": "@{triggerBody()?['_id']}",
+                        "auth0_identities0_connection": "@first(triggerBody()?['identities'])?['connection']",
+                        "auth0_identities0_issocial": "@first(triggerBody()?['identities'])?['isSocial']",
+                        "auth0_identities0_provider": "@first(triggerBody()?['identities'])?['provider']",
+                        "auth0_identities0_user_id": "@first(triggerBody()?['identities'])?['user_id']",
+                        "auth0_name": "@{triggerBody()?['name']}",
+                        "auth0_nickname": "@{triggerBody()?['nickname']}",
+                        "auth0_picture": "@{triggerBody()?['picture']}",
+                        "auth0_updated_at": "@{triggerBody()?['updated_at']}",
+                        "auth0_user_id": "@{triggerBody()?['user_id']}"
+                      },
+                      "relationships": {
+                        "item_type": {
+                          "data": {
+                            "id": "@{parameters('DatoCMSItemTypeUser')}",
+                            "type": "item_type"
+                          }
+                        }
+                      },
+                      "type": "item"
+                    }
+                  },
+                  "headers": {
+                    "Accept": "application/json",
+                    "Authorization": "@parameters('DatoCMSAuthorizationToken')",
+                    "Content-Type": "application/json",
+                    "X-Environment": "@parameters('DatoCMSEnvironment')"
+                  },
+                  "method": "POST",
+                  "uri": "@parameters('DatoCMSURL')"
+                },
+                "runAfter": {},
+                "type": "Http"
+              },
+              "Send_created_Purveyor_detail": {
+                "inputs": {
+                  "body": "@body('Create_Purveyor_in_DatoCMS')",
+                  "statusCode": "@outputs('Create_Purveyor_in_DatoCMS')['statusCode']"
+                },
+                "kind": "http",
+                "runAfter": {
+                  "Create_Purveyor_in_DatoCMS": [
+                    "Succeeded",
+                    "Failed"
+                  ]
+                },
+                "type": "Response"
+              }
+            },
+            "else": {
+              "actions": {
+                "Send_existing_Purveyor_detail": {
+                  "inputs": {
+                    "body": "@body('Find_Purveyor_in_DatoCMS')",
+                    "statusCode": "@outputs('Find_Purveyor_in_DatoCMS')['statusCode']"
+                  },
+                  "kind": "http",
+                  "runAfter": {},
+                  "type": "Response"
+                }
+              }
+            },
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@body('Parse_result_to_JSON_from_find_Purveyor')?['meta']?['total_count']",
+                    0
+                  ]
+                }
+              ]
+            },
+            "runAfter": {
+              "Parse_result_to_JSON_from_find_Purveyor": [
+                "Succeeded"
+              ]
+            },
+            "type": "If"
+          },
+          "Find_Purveyor_in_DatoCMS": {
+            "inputs": {
+              "headers": {
+                "Accept": "application/json",
+                "Authorization": "@parameters('DatoCMSAuthorizationToken')",
+                "X-Environment": "@parameters('DatoCMSEnvironment')"
+              },
+              "method": "GET",
+              "queries": {
+                "filter[fields][auth0_email][eq]": "@triggerBody()?['email']",
+                "filter[type]": "@{parameters('DatoCMSItemTypeUser')}",
+                "nested": "true",
+                "version": "@parameters('DatoCMSVersion')"
+              },
+              "uri": "@parameters('DatoCMSURL')"
+            },
+            "runAfter": {},
+            "type": "Http"
+          },
+          "Parse_result_to_JSON_from_find_Purveyor": {
+            "inputs": {
+              "content": "@body('Find_Purveyor_in_DatoCMS')",
+              "schema": {
+                "properties": {
+                  "data": {
+                    "items": {
+                      "properties": {
+                        "attributes": {
+                          "properties": {
+                            "auth0_client_id": {
+                              "type": "string"
+                            },
+                            "auth0_created_at": {
+                              "type": "string"
+                            },
+                            "auth0_email": {
+                              "type": "string"
+                            },
+                            "auth0_email_verified": {
+                              "type": "boolean"
+                            },
+                            "auth0_global_client_id": {
+                              "type": "string"
+                            },
+                            "auth0_id": {
+                              "type": "string"
+                            },
+                            "auth0_identities0_connection": {
+                              "type": "string"
+                            },
+                            "auth0_identities0_issocial": {
+                              "type": "boolean"
+                            },
+                            "auth0_identities0_provider": {
+                              "type": "string"
+                            },
+                            "auth0_identities0_user_id": {
+                              "type": "string"
+                            },
+                            "auth0_name": {
+                              "type": "string"
+                            },
+                            "auth0_nickname": {
+                              "type": "string"
+                            },
+                            "auth0_picture": {
+                              "type": "string"
+                            },
+                            "auth0_updated_at": {
+                              "type": "string"
+                            },
+                            "auth0_user_id": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string"
+                            },
+                            "updated_at": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "meta": {
+                          "properties": {
+                            "created_at": {
+                              "type": "string"
+                            },
+                            "current_version": {
+                              "type": "string"
+                            },
+                            "first_published_at": {},
+                            "is_valid": {
+                              "type": "boolean"
+                            },
+                            "publication_scheduled_at": {},
+                            "published_at": {},
+                            "status": {
+                              "type": "string"
+                            },
+                            "unpublishing_scheduled_at": {},
+                            "updated_at": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "relationships": {
+                          "properties": {
+                            "creator": {
+                              "properties": {
+                                "data": {
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "type": "object"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            "item_type": {
+                              "properties": {
+                                "data": {
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "type": "object"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes",
+                        "relationships",
+                        "meta"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "meta": {
+                    "properties": {
+                      "total_count": {
+                        "type": "integer"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "runAfter": {
+              "Find_Purveyor_in_DatoCMS": [
+                "Succeeded"
+              ]
+            },
+            "type": "ParseJson"
+          }
+        },
+        "else": {
+          "actions": {
+            "Check_Customer_not_exist": {
+              "actions": {
+                "Create_Customer_in_FaunaDB": {
+                  "inputs": {
+                    "body": {
+                      "query": "mutation { createUser(data:{ auth0_id: \"@{triggerBody()?['_id']}\" auth0_client_id: \"@{triggerBody()?['clientID']}\" auth0_created_at: \"@{triggerBody()?['created_at']}\" auth0_email: \"@{triggerBody()?['email']}\" auth0_email_verified: \"@{triggerBody()?['email_verified']}\" auth0_identities0_connection: \"@{first(triggerBody()?['identities'])?['connection']}\" auth0_identities0_provider: \"@{first(triggerBody()?['identities'])?['provider']}\" auth0_identities0_user_id: \"@{first(triggerBody()?['identities'])?['user_id']}\" auth0_identities0_issocial: \"@{first(triggerBody()?['identities'])?['isSocial']}\" auth0_name: \"@{triggerBody()?['name']}\" auth0_nickname: \"@{triggerBody()?['nickname']}\" auth0_picture: \"@{triggerBody()?['picture']}\" auth0_updated_at: \"@{triggerBody()?['updated_at']}\" auth0_user_id: \"@{triggerBody()?['user_id']}\" auth0_global_client_id: \"@{triggerBody()?['global_client_id']}\" auth0_user_type: CUSTOMER created_at: \"@{triggerBody()?['created_at']}\"  }){ _id }}"
+                    },
+                    "headers": {
+                      "Authorization": "@parameters('FaunaDBAuthorizationToken')",
+                      "Content-Type": "application/json"
+                    },
+                    "method": "POST",
+                    "uri": "@parameters('FaunaDBURL')"
+                  },
+                  "runAfter": {},
+                  "type": "Http"
+                },
+                "Send_created_Customer_detail": {
+                  "inputs": {
+                    "body": "@body('Create_Customer_in_FaunaDB')",
+                    "statusCode": "@outputs('Create_Customer_in_FaunaDB')['statusCode']"
+                  },
+                  "kind": "http",
+                  "runAfter": {
+                    "Create_Customer_in_FaunaDB": [
+                      "Succeeded",
+                      "Failed"
+                    ]
+                  },
+                  "type": "Response"
+                }
+              },
+              "else": {
+                "actions": {
+                  "Send_exitsing_Customer_detail": {
+                    "inputs": {
+                      "body": "@body('Find_Customer_in_FaunaDB')",
+                      "statusCode": "@outputs('Find_Customer_in_FaunaDB')['statusCode']"
+                    },
+                    "kind": "http",
+                    "runAfter": {},
+                    "type": "Response"
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@length(body('Parse_result_to_JSON_from_find_Customer')?['data']?['userByEmail'])",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "runAfter": {
+                "Parse_result_to_JSON_from_find_Customer": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If"
+            },
+            "Find_Customer_in_FaunaDB": {
+              "inputs": {
+                "body": {
+                  "query": "query  { getUserByEmail(email:\"@{triggerBody()?['email']}\")  { _id }}"
+                },
+                "headers": {
+                  "Authorization": "@parameters('FaunaDBAuthorizationToken')",
+                  "Content-Type": "application/json"
+                },
+                "method": "POST",
+                "uri": "@parameters('FaunaDBURL')"
+              },
+              "runAfter": {},
+              "type": "Http"
+            },
+            "Parse_result_to_JSON_from_find_Customer": {
+              "inputs": {
+                "content": "@body('Find_Customer_in_FaunaDB')",
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "getUserByEmail": {
+                          "items": {
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "_id"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "runAfter": {
+                "Find_Customer_in_FaunaDB": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ParseJson"
+            }
+          }
+        },
+        "expression": {
+          "and": [
+            {
+              "equals": [
+                "@triggerBody()?['user_metadata']?['user_type']",
+                "@parameters('UserTypePurveyor')"
+              ]
+            }
+          ]
+        },
+        "runAfter": {},
+        "type": "If"
+      }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+      "DatoCMSAuthorizationToken": {
+        "defaultValue": "Bearer 3fe151114efc1914c1fec56fa3f106",
+        "type": "String"
+      },
+      "DatoCMSEnvironment": {
+        "defaultValue": "master-latest",
+        "type": "String"
+      },
+      "DatoCMSItemTypeUser": {
+        "defaultValue": 601323,
+        "type": "Int"
+      },
+      "DatoCMSURL": {
+        "defaultValue": "https://site-api.datocms.com/items",
+        "type": "String"
+      },
+      "DatoCMSVersion": {
+        "defaultValue": "latest",
+        "type": "String"
+      },
+      "FaunaDBAuthorizationToken": {
+        "defaultValue": "Basic Zm5BRUU2dnVPb0FDQXZ4SkljM2R5LUlMWVZjWnFMMU94TDI1b2tnWDpncWwtZGVtbzpzZXJ2ZXI=",
+        "type": "String"
+      },
+      "FaunaDBURL": {
+        "defaultValue": "https://graphql.fauna.com/graphql",
+        "type": "String"
+      },
+      "UserTypePurveyor": {
+        "defaultValue": "Purveyor",
+        "type": "String"
+      }
+    },
+    "triggers": {
+      "manual": {
+        "inputs": {
+          "method": "POST",
+          "schema": {
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "clientID": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "email_verified": {
+                "type": "boolean"
+              },
+              "global_client_id": {
+                "type": "string"
+              },
+              "identities": {
+                "items": {
+                  "properties": {
+                    "connection": {
+                      "type": "string"
+                    },
+                    "isSocial": {
+                      "type": "boolean"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "connection",
+                    "provider",
+                    "user_id",
+                    "isSocial"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "name": {
+                "type": "string"
+              },
+              "nickname": {
+                "type": "string"
+              },
+              "persistent": {
+                "properties": {},
+                "type": "object"
+              },
+              "picture": {
+                "type": "string"
+              },
+              "updated_at": {
+                "type": "string"
+              },
+              "user_id": {
+                "type": "string"
+              },
+              "user_metadata": {
+                "properties": {
+                  "user_type": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "kind": "Http",
+        "type": "Request"
+      }
+    }
+  },
+  "parameters": {}
+}

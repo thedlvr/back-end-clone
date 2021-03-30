@@ -1,4 +1,28 @@
 CreateIndex({
+  name: "getUserByEmail",
+  unique: false,
+  serialized: true,
+  source: Collection("users"),
+  terms: [{field: ["data", "auth0_email"]}]
+})
+
+CreateIndex({
+  name: "purveyorByDatocmsId",
+  unique: false,
+  serialized: true,
+  source: Collection("purveyors"),
+  terms: [{ field: ["data", "datocms_id"] }]
+})
+
+CreateIndex({
+  name: "favoritePurveyorByUser",
+  unique: false,
+  serialized: true,
+  source: Collection("user_favorite_purveyors"),
+  terms: [{ field: ["data", "userId"] }]
+})
+
+CreateIndex({
   name: "clordersku_by_clorder",
   source: Collection("clorderskus"),
   terms: [{ field: ["data", "order", "data", "id"] }],
@@ -10,12 +34,6 @@ CreateIndex({
   source: Collection("clorderskus"),
   terms: [{ field: ["data", "order", "data", "id"] },{ field: ["data", "reference"] }],
   values: [{ field: ["data","reference"] },{ field: ["data","code"] },{ field: ["data","name"] },{ field: ["data","pieces_per_pack"] } ]
-})
-
-CreateIndex({
-  name: "purveyorByDatocmsId",
-  source: Collection("purveyors"),
-  terms: [{ field: ["data", "datocms_id"] }]
 })
 
 CreateIndex({
