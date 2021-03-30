@@ -65,12 +65,6 @@ CreateIndex({
 })
 
 CreateIndex({
-  name: "customerByEmail",
-  source: Collection("customers"),
-  terms: [{ field: ["data", "email"] }]
-})
-
-CreateIndex({
   name: "productBySKU",
   source: Collection("products"),
   terms: [{ field: ["data", "sku"] }]
@@ -79,12 +73,6 @@ CreateIndex({
 CreateIndex({
   name: "favoriteproductByCustomer",
   source: Collection("customer_favoriteproducts"),
-  terms: [{ field: ["data", "customerID"] }]
-})
-
-CreateIndex({
-  name: "favoritepurveyorByCustomer",
-  source: Collection("customer_favoritepurveyors"),
   terms: [{ field: ["data", "customerID"] }]
 })
 
