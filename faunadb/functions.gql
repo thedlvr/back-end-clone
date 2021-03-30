@@ -166,6 +166,157 @@ Update(Function("favouritePurveyor"), {
   )
 });
 
+Update(Function("recipeByDatocmsId"), {
+  "body":Query(
+    Lambda(
+      ["datocms_id"],
+      Let(
+        {
+          recipes: Map(
+            Paginate(Match(Index("getRecipeByDatocmsId"), Var("datocms_id"))),
+            Lambda("recipes", Get(Var("recipes")))
+          )
+        },
+        Select(["data"], Var("recipes"), false)
+      )
+    )
+  )
+});
+
+Update(Function("favouriteRecipe"), {
+  "body":Query(
+    Lambda(
+      ["auth0_email", "datocms_id"],
+      Let(
+        {
+          user: Let(
+            {
+              users: Map(
+                Paginate(Match(Index("getUserByEmail"), Var("auth0_email"))),
+                Lambda("users", Get(Var("users")))
+              )
+            },
+            Select([0], Var("users"), false)
+          ),
+          recipe: Let(
+            {
+              recipes: Map(
+                Paginate(
+                  Match(Index("getRecipeByDatocmsId"), Var("datocms_id"))
+                ),
+                Lambda("recipes", Get(Var("recipes")))
+              )
+            },
+            Select([0], Var("recipes"), false)
+          ),
+          favoriteRecipeSelected: Let(
+            {
+              favoriteRecipeRefs: Paginate(
+                Match(
+                  Index("getFavoriteRecipeByUser"),
+                  Select("ref", Var("user"), false)
+                )
+              ),
+              recipeRefs: Map(
+                Var("favoriteRecipeRefs"),
+                Lambda(
+                  ["ref"],
+                  Let(
+                    {
+                      recipe: Get(
+                        Select(["data", "recipeId"], Get(Var("ref")), false)
+                      )
+                    },
+                    {
+                      favoriterecipeRef: Get(Var("ref")),
+                      recipe: Var("recipe")
+                    }
+                  )
+                )
+              ),
+              favoriteRecipeSelected: Let(
+                {
+                  favoriteRecipeSelected: Filter(
+                    Var("recipeRefs"),
+                    Lambda(
+                      ["favoriteRecipe"],
+                      Equals(
+                        Var("datocms_id"),
+                        Select(
+                          ["recipe", "data", "datocms_id"],
+                          Var("favoriteRecipe"),
+                          false
+                        )
+                      )
+                    )
+                  )
+                },
+                Select([0], Var("favoriteRecipeSelected"), false)
+              ),
+              favoriteRecipeStatus: If(
+                IsNull(Var("favoriteRecipeSelected")),
+                Create(Collection("user_favorite_recipes"), {
+                  data: {
+                    userId: Select(["ref"], Var("user"), false),
+                    recipeId: Ref(
+                      Collection("recipes"),
+                      Select(["ref", "id"], Var("recipe"), false)
+                    )
+                  }
+                }),
+                Delete(
+                  Ref(
+                    Collection("user_favorite_recipes"),
+                    Select(
+                      ["favoriteRecipeRef", "ref", "id"],
+                      Var("favoriteRecipeSelected"),
+                      false
+                    )
+                  )
+                )
+              )
+            },
+            Var("favoriteRecipeSelected")
+          ),
+          favoriteRecipesUpdated: Let(
+            {
+              favoriteRecipeRefs: Paginate(
+                Match(
+                  Index("favoriteRecipeByUser"),
+                  Select("ref", Var("user"), false)
+                )
+              ),
+              recipes: Map(
+                Var("favoriteRecipeRefs"),
+                Lambda(
+                  ["ref"],
+                  Let(
+                    {
+                      recipe: Get(
+                        Select(["data", "recipeId"], Get(Var("ref")), false)
+                      )
+                    },
+                    Select("data", Var("recipe"), false)
+                  )
+                )
+              )
+            },
+            Select("data", Var("recipes"), false)
+          )
+        },
+        {
+          message: If(
+            IsNull(Var("favoriteRecipeSelected")),
+            "favorited",
+            "unfavorited"
+          ),
+          favoriteRecipes: Var("favoriteRecipesUpdated")
+        }
+      )
+    )
+  )
+});
+
 Update(Function("addCLOrder"), {
   "body": Query(
     Lambda(["orderId", "attributes"],
