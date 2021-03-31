@@ -1,11 +1,11 @@
-Update(Function("getUserByEmail"), {
+Update(Function("findUserByEmail"), {
   "body":Query(
     Lambda(
       ["auth0_email"],
       Let(
         {
           users: Map(
-            Paginate(Match(Index("getUserByEmail"), Var("auth0_email"))),
+            Paginate(Match(Index("findUserByEmail"), Var("auth0_email"))),
             Lambda("users", Get(Var("users")))
           )
         },
@@ -15,14 +15,14 @@ Update(Function("getUserByEmail"), {
   )
 });
 
-Update(Function("purveyorByDatocmsId"), {
+Update(Function("findPurveyorByDatocmsId"), {
   "body":Query(
     Lambda(
       ["datocms_id"],
       Let(
         {
           purveyors: Map(
-            Paginate(Match(Index("purveyorByDatocmsId"), Var("datocms_id"))),
+            Paginate(Match(Index("findPurveyorByDatocmsId"), Var("datocms_id"))),
             Lambda("purveyors", Get(Var("purveyors")))
           )
         },
@@ -41,7 +41,7 @@ Update(Function("favoritePurveyor"), {
           user: Let(
             {
               users: Map(
-                Paginate(Match(Index("getUserByEmail"), Var("auth0_email"))),
+                Paginate(Match(Index("findUserByEmail"), Var("auth0_email"))),
                 Lambda("users", Get(Var("users")))
               )
             },
@@ -62,7 +62,7 @@ Update(Function("favoritePurveyor"), {
             {
               favoritePurveyorRefs: Paginate(
                 Match(
-                  Index("favoritePurveyorByUser"),
+                  Index("findFavoritePurveyorByUser"),
                   Select("ref", Var("user"), false)
                 )
               ),
@@ -131,7 +131,7 @@ Update(Function("favoritePurveyor"), {
             {
               favoritePurveyorRefs: Paginate(
                 Match(
-                  Index("favoritePurveyorByUser"),
+                  Index("findFavoritePurveyorByUser"),
                   Select("ref", Var("user"), false)
                 )
               ),
@@ -166,7 +166,7 @@ Update(Function("favoritePurveyor"), {
   )
 });
 
-Update(Function("recipeByDatocmsId"), {
+Update(Function("findRecipeByDatocmsId"), {
   "body":Query(
     Lambda(
       ["datocms_id"],
@@ -192,7 +192,7 @@ Update(Function("favoriteRecipe"), {
           user: Let(
             {
               users: Map(
-                Paginate(Match(Index("getUserByEmail"), Var("auth0_email"))),
+                Paginate(Match(Index("findUserByEmail"), Var("auth0_email"))),
                 Lambda("users", Get(Var("users")))
               )
             },
@@ -282,7 +282,7 @@ Update(Function("favoriteRecipe"), {
             {
               favoriteRecipeRefs: Paginate(
                 Match(
-                  Index("favoriteRecipeByUser"),
+                  Index("findFavoriteRecipeByUser"),
                   Select("ref", Var("user"), false)
                 )
               ),
@@ -315,675 +315,4 @@ Update(Function("favoriteRecipe"), {
       )
     )
   )
-});
-
-Update(Function("addCLOrder"), {
-  "body": Query(
-    Lambda(["orderId", "attributes"],
-      Create(
-          Collection("clorders"), {
-            data: {
-              "orderId": "123",
-              "attributes": {
-                "number": 258116,
-                "status": "pending",
-                "payment_status": "unpaid",
-                "fulfillment_status": "unfulfilled",
-                "guest": true,
-                "editable": true,
-                "placeable": true,
-                "customer_email": "isabelle@example.com",
-                "language_code": "en",
-                "currency_code": "EUR",
-                "tax_included": true,
-                "tax_rate": null,
-                "freight_taxable": null,
-                "requires_billing_info": false,
-                "country_code": null,
-                "shipping_country_code_lock": null,
-                "coupon_code": null,
-                "gift_card_code": null,
-                "gift_card_or_coupon_code": null,
-                "subtotal_amount_cents": 3500,
-                "subtotal_amount_float": 35.0,
-                "formatted_subtotal_amount": "€35,00",
-                "shipping_amount_cents": 0,
-                "shipping_amount_float": 0.0,
-                "formatted_shipping_amount": "€0,00",
-                "payment_method_amount_cents": 0,
-                "payment_method_amount_float": 0.0,
-                "formatted_payment_method_amount": "€0,00",
-                "discount_amount_cents": 0,
-                "discount_amount_float": 0.0,
-                "formatted_discount_amount": "€0,00",
-                "adjustment_amount_cents": 0,
-                "adjustment_amount_float": 0.0,
-                "formatted_adjustment_amount": "€0,00",
-                "gift_card_amount_cents": 0,
-                "gift_card_amount_float": 0.0,
-                "formatted_gift_card_amount": "€0,00",
-                "total_tax_amount_cents": 0,
-                "total_tax_amount_float": 0.0,
-                "formatted_total_tax_amount": "€0,00",
-                "subtotal_tax_amount_cents": 0,
-                "subtotal_tax_amount_float": 0.0,
-                "formatted_subtotal_tax_amount": "€0,00",
-                "shipping_tax_amount_cents": 0,
-                "shipping_tax_amount_float": 0.0,
-                "formatted_shipping_tax_amount": "€0,00",
-                "payment_method_tax_amount_cents": 0,
-                "payment_method_tax_amount_float": 0.0,
-                "formatted_payment_method_tax_amount": "€0,00",
-                "adjustment_tax_amount_cents": 0,
-                "adjustment_tax_amount_float": 0.0,
-                "formatted_adjustment_tax_amount": "€0,00",
-                "total_amount_cents": 3500,
-                "total_amount_float": 35.0,
-                "formatted_total_amount": "€35,00",
-                "total_taxable_amount_cents": 3500,
-                "total_taxable_amount_float": 35.0,
-                "formatted_total_taxable_amount": "€35,00",
-                "subtotal_taxable_amount_cents": 3500,
-                "subtotal_taxable_amount_float": 35.0,
-                "formatted_subtotal_taxable_amount": "€35,00",
-                "shipping_taxable_amount_cents": 0,
-                "shipping_taxable_amount_float": 0.0,
-                "formatted_shipping_taxable_amount": "€0,00",
-                "payment_method_taxable_amount_cents": 0,
-                "payment_method_taxable_amount_float": 0.0,
-                "formatted_payment_method_taxable_amount": "€0,00",
-                "adjustment_taxable_amount_cents": 0,
-                "adjustment_taxable_amount_float": 0.0,
-                "formatted_adjustment_taxable_amount": "€0,00",
-                "total_amount_with_taxes_cents": 3500,
-                "total_amount_with_taxes_float": 35.0,
-                "formatted_total_amount_with_taxes": "€35,00",
-                "fees_amount_cents": 0,
-                "fees_amount_float": 0.0,
-                "formatted_fees_amount": "€0,00",
-                "authorization_amount_cents": 3500,
-                "authorization_amount_float": 35.0,
-                "formatted_authorization_amount": "€35,00",
-                "authorization_balance_cents": 3500,
-                "authorization_balance_float": 35.0,
-                "formatted_authorization_balance": "€35,00",
-                "skus_count": 1,
-                "line_item_options_count": 0,
-                "shipments_count": 0,
-                "payment_source_details": null,
-                "token": "68abaadc41d2170bc748af9b3714f40a",
-                "cart_url": null,
-                "return_url": null,
-                "terms_url": null,
-                "privacy_url": null,
-                "checkout_url": "https://providore-checkout.vercel.app/PpyAhMeKDq",
-                "placed_at": null,
-                "approved_at": null,
-                "cancelled_at": null,
-                "payment_updated_at": null,
-                "fulfillment_updated_at": null,
-                "created_at": "2020-06-25T08:56:57.072Z",
-                "updated_at": "2020-06-25T08:56:57.208Z",
-                "reference": null,
-                "reference_origin": null,
-              }
-            }
-          }
-      )  
-    )
-  )
-});
-
-Update(Function("updateCLOrder"), {
-  "body": Query(
-    Lambda(["orderId", "attributes", "items"],
-        Foreach(Var("items"),
-            Lambda("item",
-              Create(
-                  Collection("clorderskus"), {
-                    data: {
-                      "order": Get(Ref(Collection("clorders"), Var("orderId"))),
-                      "code":  Select(["code"], Var("item")),
-                      "name": Select(["name"], Var("item")),
-                      "description": Select(["description"], Var("item")),
-                      "image_url": Select(["image_url"], Var("item")),
-                      "pieces_per_pack": Select(["pieces_per_pack"], Var("item")),
-                      "weight":  Select(["weight"], Var("item")),
-                      "unit_of_weight": Select(["unit_of_weight"], Var("item")),
-                      "hs_tariff_number": Select(["hs_tariff_number"], Var("item")),
-                      "created_at": Select(["created_at"], Var("item")),
-                      "updated_at": Select(["updated_at"], Var("item")),
-                      "reference": Select(["reference"], Var("item")),
-                      "reference_origin": Select(["reference_origin"], Var("item")),
-                    }
-               })
-            )
-          )
-      )  
-    )
-});   
-
-Update(Function("getSkusByPurveyor"), {
-  "body": Query(
-  Lambda(
-    ["orderId"],
-    Map(
-      Paginate(Distinct(Match(Index("clordersku_by_clorder"), Var("orderId")))),
-      Lambda(
-        "purveyorId",
-        Map(
-          Paginate(
-            Match(Index("clordersku_by_purveyor"), [
-              Var("orderId"),
-              Var("purveyorId")
-            ])
-          ),
-          Lambda("value", {
-            reference: Select([0], Var("value")),
-            code: Select([1], Var("value")),
-            name: Select([2], Var("value")),
-            pieces_per_pack: Select([3], Var("value"))
-          })
-        )
-      )
-    )
-  )
-)
-});
-
-Update(Function("purveyorByChecId"), {
-  "body": Query(
-  Lambda(
-    ["checId"],
-    Let(
-      {
-        purveyor: Map(
-          Paginate(Match(Index("purveyorByChecId"), Var("checId"))),
-          Lambda("purveyor", Get(Var("purveyor")))
-        )
-      },
-      Select(["data"], Var("purveyor"))
-    )
-  )
-)
-});
-
-Update(Function("productUpdateByDatocmsId"), {
-  "body":Query(
-  Lambda(
-    [
-      "datocms_id",
-      "name",
-      "product_measurement",
-      "sku",
-      "dietary_tag",
-      "product_variant",
-      "description",
-      "price",
-      "datocms_purveyor_id"
-    ],
-    Let(
-      {
-        product: Map(
-          Paginate(Match(Index("productByDatocmsId"), Var("datocms_id"))),
-          Lambda("product", Get(Var("product")))
-        )
-      },
-      Update(Select("ref", Select([0], Var("product"))), {
-        data: {
-          name: Var("name"),
-          product_measurement: Var("product_measurement"),
-          sku: Var("sku"),
-          dietary_tag: Var("dietary_tag"),
-          product_variant: Var("product_variant"),
-          description: Var("description"),
-          price: Var("price")
-        }
-      })
-    )
-  )
-)
-});
-
-Update(Function("updatePurveyor"), {
-  "body":Query(
-  Lambda(
-    [
-      "datocms_id",
-      "name",     
-      "checSecretKey",
-      "checPublicKey",
-      "checSandboxSecretKey",
-      "checSandboxPublicKey",
-       "checId"
-    ],
-    Let(
-      {
-        purveyor: Map(
-          Paginate(Match(Index("purveyorByDatocmsId"), Var("datocms_id"))),
-          Lambda("purveyor", Get(Var("purveyor")))
-        )
-      },
-      Update(Select("ref", Select([0], Var("purveyor"))), {
-        data: {
-          name: Var("name"),
-          checId: Var("checId"),
-          checSecretKey: Var("checSecretKey"),
-          checPublicKey: Var("checPublicKey"),
-          checSandboxSecretKey: Var("checSandboxSecretKey"),
-          checSandboxPublicKey: Var("checSandboxPublicKey")
-        }
-      })
-    )
-  )
-)
-});
-
-Update(Function("customerByEmail"), {
-  "body":Query(
-  Lambda(
-    ["email"],
-    Let(
-      {
-        customer: Map(
-          Paginate(Match(Index("customerByEmail"), Var("email"))),
-          Lambda("customer", Get(Var("customer")))
-        )
-      },
-      Select(["data"],Var("customer"))
-    )
-  )
-)
-});
-
-Update(Function("favoriteproduct"), {
-  "body":Query(
-  Lambda(
-    ["auth0","sku"],
-    Let(
-    {
-      customer: Let(
-        {
-          customers: Map(
-            Paginate(Match(Index("customerByEmail"), Var("auth0"))),
-            Lambda("customer", Get(Var("customer")))
-          )
-        },
-        Select([0], Var("customers"), null)
-      ),
-      product: Let(
-        {
-          products: Map(
-            Paginate(Match(Index("productBySKU"), Var("sku"))),
-            Lambda("product", Get(Var("product")))
-          )
-        },
-        Select([0], Var("products"))
-      ),
-      favoriteProductSelected: Let(
-        {
-          favoriteproductRefs: Paginate(
-            Match(
-              Index("favoriteproductByCustomer"),
-              Select("ref", Var("customer"))
-            )
-          ),
-          productRefs: Map(
-            Var("favoriteproductRefs"),
-            Lambda(
-              ["ref"],
-              Let(
-                {
-                  product: Get(Select(["data", "productID"], Get(Var("ref"))))
-                },
-                {
-                  favoriteproductRef: Get(Var("ref")),
-                  product: Var("product")
-                }
-              )
-            )
-          ),
-          favoriteProductSelected: Let(
-            {
-              favoriteproductSelected: Filter(
-                Var("productRefs"),
-                Lambda(
-                  ["favoriteproduct"],
-                  Equals(
-                    Var("sku"),
-                    Select(["product", "data", "sku"], Var("favoriteproduct"))
-                  )
-                )
-              )
-            },
-            Select([0], Var("favoriteproductSelected"), null)
-          ),
-          favoriteProductStatus: If(
-            IsNull(Var("favoriteProductSelected")),
-            Create(Collection("customer_favoriteproducts"), {
-              data: {
-                customerID: Select(["ref"], Var("customer")),
-                productID: Ref(
-                  Collection("products"),
-                  Select(["ref", "id"], Var("product"))
-                )
-              }
-            }),
-            Delete(
-              Ref(
-                Collection("customer_favoriteproducts"),
-                Select(
-                  ["favoriteproductRef", "ref", "id"],
-                  Var("favoriteProductSelected")
-                )
-              )
-            )
-          )
-        },
-        Var("favoriteProductSelected")
-      ),
-      favoriteProductsUpdated: Let(
-        {
-          favoriteproductRefs: Paginate(
-            Match(
-              Index("favoriteproductByCustomer"),
-              Select("ref", Var("customer"))
-            )
-          ),
-          products: Map(
-            Var("favoriteproductRefs"),
-            Lambda(
-              ["ref"],
-              Let(
-                {
-                  product: Get(Select(["data", "productID"], Get(Var("ref"))))
-                },
-                Select("data",Var("product"))
-              )
-            )
-          ),
-        },
-        Select("data", Var("products"), null)
-      )
-    },
-    {
-      message: If(
-        IsNull(Var("favoriteProductSelected")),
-        "favorited",
-        "unfavorited"
-      ),
-      favoriteProducts: Var("favoriteProductsUpdated")
-    }
-  )
-  )
-)
-});
-
-Update(Function("customerProfile"), {
-  "body":Query(
-  Lambda(
-    ["auth0"],
-      Let(
-      {
-        customer: Map(
-          Paginate(Match(Index("customerByEmail"), Var("auth0"))),
-          Lambda("customer", Get(Var("customer")))
-        ),
-        selectedCustomer: Select([0], Var("customer")),
-        favoriteproductRefs: Paginate(
-          Match(
-            Index("favoriteproductByCustomer"),
-            Select("ref", Var("selectedCustomer"))
-          )
-        ),
-        productRefs: Map(
-          Var("favoriteproductRefs"),
-          Lambda(["ref"], Get(Var("ref")))
-        ),
-        favoriteproducts: Map(
-          Var("productRefs"),
-          Lambda(
-            ["favorite"],
-            Select(["data"], Get(Select(["data", "productID"], Var("favorite"))))
-          )
-        ),
-        favoritepurveyors: Let(
-          {
-            favoritepurveyorRefs: Paginate(
-              Match(
-                Index("favoritepurveyorByCustomer"),
-                Select("ref", Var("selectedCustomer"))
-              )
-            ),
-            purveyorRefs: Map(
-              Var("favoritepurveyorRefs"),
-              Lambda(["ref"], Get(Var("ref")))
-            ),
-            favoritepurveyors: Map(
-              Var("purveyorRefs"),
-              Lambda(
-                ["purveyor"],
-                Select(
-                  ["data"],
-                  Get(Select(["data", "purveyorID"], Var("purveyor")))
-                )
-              )
-            )
-          },
-          Var("favoritepurveyors")
-        ),
-        favoriterecipes: Let(
-          {
-            favoriterecipeRefs: Paginate(
-              Match(
-                Index("favoriterecipeByCustomer"),
-                Select("ref", Var("selectedCustomer"))
-              )
-            ),
-            recipeRefs: Map(
-              Var("favoriterecipeRefs"),
-              Lambda(["ref"], Get(Var("ref")))
-            ),
-            favoriterecipes: Map(
-              Var("recipeRefs"),
-              Lambda(
-                ["recipe"],
-                Select(["data"], Get(Select(["data", "recipeID"], Var("recipe"))))
-              )
-            )
-          },
-          Var("favoriterecipes")
-        )
-      },
-      {
-        customer: Select("data", Var("selectedCustomer")),
-        favoriteproducts: Select("data", Var("favoriteproducts")),
-        favoritepurveyors: Select("data", Var("favoritepurveyors")),
-        favoriterecipes: Select("data", Var("favoriterecipes"))
-      }
-    )
-)
-)
-});
-
-Update(Function("createChecOrder"), {
-"body":Query(
-  Lambda(
-    ["chec_order_id", "chec_id", "cl_order_id", "email", "attributes", "items"],
-    Let(
-      {
-        clOrder: Let(
-          {
-            clOrders: Map(
-              Paginate(Match(Index("clorderByOrderId"), Var("cl_order_id"))),
-              Lambda("c", Get(Var("c")))
-            )
-          },
-          Select([0], Var("clOrders"))
-        ),
-        customer: Let(
-          {
-            customers: Map(
-              Paginate(Match(Index("customerByEmail"), Var("email"))),
-              Lambda("c", Get(Var("c")))
-            )
-          },
-          Select([0], Var("customers"))
-        ),
-        purveyor: Let(
-          {
-            purveyors: Map(
-              Paginate(Match(Index("purveyorByChecId"), Var("chec_id"))),
-              Lambda("p", Get(Var("p")))
-            )
-          },
-          Select([0], Var("purveyors"))
-        ),
-        orderItems: Map(
-          Var("items"),
-          Lambda(
-            "i",
-            Let(
-              {
-                item: Let(
-                  {
-                    products: Map(
-                      Paginate(
-                        Match(Index("productBySKU"), Select("sku", Var("i")))
-                      ),
-                      Lambda("p", Get(Var("p")))
-                    )
-                  },
-                  Select([0], Var("products"))
-                )
-              },
-              {
-                ref: Select("ref", Var("item")),
-                chec_order_item_id: Select("chec_order_item_id", Var("i")),
-                product_id: Select("chec_product_id", Var("i")),
-                sku: Select("sku", Var("i")),
-                product_name: Select("chec_product_name", Var("i")),
-                quantity: Select("quantity", Var("i")),
-                type: Select("type", Var("i")),
-                tax_is_taxable: Select("tax_is_taxable", Var("i")),
-                price_raw: Select("price_raw", Var("i")),
-                price_formatted: Select("price_formatted", Var("i")),
-                line_total_raw: Select("line_total_raw", Var("i")),
-                line_total_formatted: Select("line_total_formatted", Var("i"))
-              }
-            )
-          )
-        )
-      },
-      Do(
-        Create(Collection("checorders"), {
-          data: {
-            chec_order_id: Var("chec_order_id"),
-            cl_order_id: Select("ref", Var("clOrder")),
-            purveyor: Select("ref", Var("purveyor")),
-            customer: Select("ref", Var("customer")),
-            attributes: Var("attributes"),
-            items: Var("orderItems"),
-            created_at: Time("now")
-          }
-        })
-      )
-    )
-  )
-)
-})
-
-Update(Function("createCLOrder"), {
-"body":Query(
-  Lambda(
-    ["cl_order_id", "email", "attributes", "items", "shipping", "billing"],
-    Let(
-      {
-        customer: Let(
-          {
-            customers: Map(
-              Paginate(Match(Index("customerByEmail"), Var("email"))),
-              Lambda("c", Get(Var("c")))
-            )
-          },
-          Select([0], Var("customers"))
-        ),
-        orderItems: Map(
-          Var("items"),
-          Lambda(
-            "i",
-            Let(
-              {
-                item: Let(
-                  {
-                    products: Map(
-                      Paginate(
-                        Match(Index("productBySKU"), Select("sku", Var("i")))
-                      ),
-                      Lambda("p", Get(Var("p")))
-                    )
-                  },
-                  Select([0], Var("products"))
-                )
-              },
-              {
-                ref: Select("ref", Var("item")),
-                sku: Select("sku", Var("i")),
-                quantity: Select("quantity", Var("i"))
-              }
-            )
-          )
-        )
-      },
-      Do(
-        Create(Collection("clorders"), {
-          data: {
-            cl_order_id: Var("cl_order_id"),
-            customer: Select("ref", Var("customer")),
-            attributes: Var("attributes"),
-            shiping: Var("shipping"),
-            billing: Var("billing"),
-            items: Var("orderItems"),
-            created_at: Time("now")
-          }
-        })
-      )
-    )
-  )
-)
-})
-
-Update(Function("updateRecipe"), {
-  "body":Query(
-  Lambda(
-    [
-      "datocms_id",
-      "name",     
-      "datocms_purveyor_id",
-      "datocms_main_category_id",
-      "datocms_sub_categories",
-      "datocms_tags",
-      "duration",
-      "authors_tip",
-      "difficulty",
-      "datocms_methods",
-      "featured_image",
-      "is_trending",
-      "summary"
-    ],
-    Let(
-      {
-        recipe: Map(
-          Paginate(Match(Index("recipeByDatocmsId"), Var("datocms_id"))),
-          Lambda("recipe", Get(Var("recipe")))
-        )
-      },
-      Update(Select("ref", Select([0], Var("recipe"))), {
-        data: {
-          name: Var("name"),
-        }
-      })
-    )
-  )
-)
 });

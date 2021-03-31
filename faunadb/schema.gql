@@ -3,7 +3,7 @@
 type User @collection(name: "users") {
   auth0_client_id: String
   auth0_created_at: String
-  auth0_email: String @unique
+  auth0_email: String
   auth0_email_verified: String
   auth0_global_client_id: String
   auth0_id: String
@@ -171,12 +171,12 @@ enum UserType {
 
 type Query {
   allUsers: [User!]
-  # used to get user record by email address. used in create customer logic app, previous name -> customerByEmail
-  getUserByEmail(email: String!): [User]! @resolver(name: "getUserByEmail", paginated: false)
-  # used to get user's profile in nextjs app, previous name -> customerProfileByAuth0. used in get customer logic app
-  getUserByAuth0(auth0: String!): User @resolver(name: "getUserByAuth0", paginated: false)
-  purveyorByDatocmsId(datocmsId: String!): [User!] @resolver(name: "purveyorByDatocmsId", paginated: false)
-  recipeByDatocmsId(datocmsId: String!): [Recipe!] @resolver(name: "recipeByDatocmsId", paginated: false)
+  # used to find user record by email address. used in create customer logic app, previous name -> customerByEmail
+  findUserByEmail(email: String!): User @resolver(name: "findUserByEmail", paginated: false)
+  # used to find user's profile in nextjs app, previous name -> customerProfileByAuth0. used in find customer logic app
+  findUserByAuth0(auth0: String!): User @resolver(name: "findUserByAuth0", paginated: false)
+  findPurveyorByDatocmsId(datocmsId: String!): [User!] @resolver(name: "findPurveyorByDatocmsId", paginated: false)
+  findRecipeByDatocmsId(datocmsId: String!): [Recipe!] @resolver(name: "findRecipeByDatocmsId", paginated: false)
   allPurveyors: [User!]
   purveyorByChecId(checId: String!): [User!]
     @resolver(name: "purveyorByChecId", paginated: false)
@@ -214,19 +214,19 @@ type Mutation {
     cl_sku: String
   ): Product! @resolver
 
-  updateFavouriteProduct(
+  updateFavoriteProduct(
     auth0: String!
     sku: String!
   ): UserFavoriteProductPaylod
     @resolver(name: "favoriteproduct", paginated: false)
 
-  updateFavouritePurveyor(
+  updateFavoritePurveyor(
     auth0: String!
     purveyorDatocmsId: String!
   ): UserFavoritePurveyorPaylod
     @resolver(name: "favoritePurveyor", paginated: false)
 
-  updateFavouriteRecipe(
+  updateFavoriteRecipe(
     auth0: String!
     recipeDatocmsId: String!
   ): UserFavoriteRecipePaylod

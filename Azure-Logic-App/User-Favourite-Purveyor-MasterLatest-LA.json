@@ -17,24 +17,24 @@
 				"runAfter": {},
 				"type": "ParseJson"
 			},
-			"Send_update_User_favourite_Purveyor_response": {
+			"Send_update_User_favorite_Purveyor_response": {
 				"inputs": {
-					"body": "@body('Update_User_favourite_Purveyor')",
-					"statusCode": "@outputs('Update_User_favourite_Purveyor')['statusCode']"
+					"body": "@body('Update_User_favorite_Purveyor')",
+					"statusCode": "@outputs('Update_User_favorite_Purveyor')['statusCode']"
 				},
 				"kind": "Http",
 				"runAfter": {
-					"Update_User_favourite_Purveyor": [
+					"Update_User_favorite_Purveyor": [
 						"Succeeded",
 						"Failed"
 					]
 				},
 				"type": "Response"
 			},
-			"Update_User_favourite_Purveyor": {
+			"Update_User_favorite_Purveyor": {
 				"inputs": {
 					"body": {
-						"query": "mutation { updateFavouritePurveyor(auth0:\"@{body('Parse_JSON_-_Headers')?['X-Authorization']}\",purveyorDatocmsId:\"@{triggerBody()?['purveyorDatocmsId']}\"){ message favoritePurveyors{ name datocms_id} }}"
+						"query": "mutation { updateFavoritePurveyor(auth0:\"@{body('Parse_JSON_-_Headers')?['X-Authorization']}\",purveyorDatocmsId:\"@{triggerBody()?['purveyorDatocmsId']}\"){ message favoritePurveyors{ name datocms_id} }}"
 					},
 					"headers": {
 						"Authorization": "@parameters('FaunaDBAuthorizationToken')"
