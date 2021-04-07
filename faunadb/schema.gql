@@ -175,13 +175,11 @@ type Query {
   getUserByEmail(email: String!): [User]! @resolver(name: "getUserByEmail", paginated: false)
   # used to get user's profile in nextjs app, previous name -> customerProfileByAuth0. used in get customer logic app
   getUserByAuth0(auth0: String!): User @resolver(name: "getUserByAuth0", paginated: false)
+  purveyorByDatocmsId(datocmsId: String!): [User!] @resolver(name: "purveyorByDatocmsId", paginated: false)
+  recipeByDatocmsId(datocmsId: String!): [Recipe!] @resolver(name: "recipeByDatocmsId", paginated: false)
   allPurveyors: [User!]
   purveyorByChecId(checId: String!): [User!]
     @resolver(name: "purveyorByChecId", paginated: false)
-  purveyorByDatocmsId(datocmsId: String!): [User!]
-    @resolver(name: "purveyorByDatocmsId", paginated: false)
-  recipeByDatocmsId(datocmsId: String!): [Recipe!]
-    @resolver(name: "recipeByDatocmsId", paginated: false)
 }
 
 # Functions
@@ -220,19 +218,19 @@ type Mutation {
     auth0: String!
     sku: String!
   ): UserFavoriteProductPaylod
-    @resolver(name: "favouriteproduct", paginated: false)
+    @resolver(name: "favoriteproduct", paginated: false)
 
   updateFavouritePurveyor(
     auth0: String!
     purveyorDatocmsId: String!
   ): UserFavoritePurveyorPaylod
-    @resolver(name: "favouritePurveyor", paginated: false)
+    @resolver(name: "favoritePurveyor", paginated: false)
 
   updateFavouriteRecipe(
     auth0: String!
     recipeDatocmsId: String!
   ): UserFavoriteRecipePaylod
-    @resolver(name: "favouriterecipe", paginated: false)
+    @resolver(name: "favoriteRecipe", paginated: false)
 
   updateRecipe(
     datocms_id: String!

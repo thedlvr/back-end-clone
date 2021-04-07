@@ -4,7 +4,7 @@ CreateIndex({
   serialized: true,
   source: Collection("users"),
   terms: [{field: ["data", "auth0_email"]}]
-})
+});
 
 CreateIndex({
   name: "purveyorByDatocmsId",
@@ -12,7 +12,7 @@ CreateIndex({
   serialized: true,
   source: Collection("purveyors"),
   terms: [{ field: ["data", "datocms_id"] }]
-})
+});
 
 CreateIndex({
   name: "favoritePurveyorByUser",
@@ -20,7 +20,23 @@ CreateIndex({
   serialized: true,
   source: Collection("user_favorite_purveyors"),
   terms: [{ field: ["data", "userId"] }]
-})
+});
+
+CreateIndex({
+  name: "recipeByDatocmsId",
+  unique: false,
+  serialized: true,
+  source: Collection("recipes"),
+  terms: [{ field: ["data", "datocms_id"] }]
+});
+
+CreateIndex({
+  name: "favoriteRecipeByUser",
+  unique: false,
+  serialized: true,
+  source: Collection("user_favorite_recipes"),
+  terms: [{ field: ["data", "userId"] }]
+});
 
 CreateIndex({
   name: "clordersku_by_clorder",
@@ -49,12 +65,6 @@ CreateIndex({
 })
 
 CreateIndex({
-  name: "customerByEmail",
-  source: Collection("customers"),
-  terms: [{ field: ["data", "email"] }]
-})
-
-CreateIndex({
   name: "productBySKU",
   source: Collection("products"),
   terms: [{ field: ["data", "sku"] }]
@@ -67,25 +77,7 @@ CreateIndex({
 })
 
 CreateIndex({
-  name: "favoritepurveyorByCustomer",
-  source: Collection("customer_favoritepurveyors"),
-  terms: [{ field: ["data", "customerID"] }]
-})
-
-CreateIndex({
  name: "clorderByOrderId",
  source: Collection("clorders"),
  terms: [{ field: ["data", "order_id"] }]
-})
-
-CreateIndex({
-  name: "recipeByDatocmsId",
-  source: Collection("recipes"),
-  terms: [{ field: ["data", "datocms_id"] }]
-})
-
-CreateIndex({
-  name: "favoriterecipeByCustomer",
-  source: Collection("customer_favoriterecipes"),
-  terms: [{ field: ["data", "customerID"] }]
 })
