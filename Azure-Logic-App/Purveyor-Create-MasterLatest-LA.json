@@ -49,7 +49,7 @@
           "and": [
             {
               "equals": [
-                "@length(body('Parse_result_to_JSON_from_find_Purveyor')?['data']?['getUserByEmail'])",
+                "@length(body('Parse_result_to_JSON_from_find_Purveyor')?['data']?['findUserByEmail'])",
                 0
               ]
             }
@@ -65,7 +65,7 @@
       "Find_Purveyor_in_FaunaDB": {
         "inputs": {
           "body": {
-            "query": "query  { getUserByEmail(email:\"@{triggerBody()?['entity']?['attributes']?['auth0_email']}\")  { _id }}"
+            "query": "query  { findUserByEmail(email:\"@{triggerBody()?['entity']?['attributes']?['auth0_email']}\")  { _id }}"
           },
           "headers": {
             "Authorization": "@parameters('FaunaDBAuthorizationToken')"
@@ -83,7 +83,7 @@
             "properties": {
               "data": {
                 "properties": {
-                  "getUserByEmail": {
+                  "findUserByEmail": {
                     "items": {
                       "properties": {
                         "_id": {

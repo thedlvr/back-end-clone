@@ -17,24 +17,24 @@
 				"runAfter": {},
 				"type": "ParseJson"
 			},
-			"Send_update_User_favorite_Purveyor_response": {
+			"Send_update_User_favorite_Recipe_response": {
 				"inputs": {
-					"body": "@body('Update_User_favorite_Purveyor')",
-					"statusCode": "@outputs('Update_User_favorite_Purveyor')['statusCode']"
+					"body": "@body('Update_User_favorite_Recipe')",
+					"statusCode": "@outputs('Update_User_favorite_Recipe')['statusCode']"
 				},
 				"kind": "Http",
 				"runAfter": {
-					"Update_User_favorite_Purveyor": [
+					"Update_User_favorite_Recipe": [
 						"Succeeded",
 						"Failed"
 					]
 				},
 				"type": "Response"
 			},
-			"Update_User_favorite_Purveyor": {
+			"Update_User_favorite_Recipe": {
 				"inputs": {
 					"body": {
-						"query": "mutation { updateFavoritePurveyor(auth0:\"@{body('Parse_JSON_-_Headers')?['X-Authorization']}\",purveyorDatocmsId:\"@{triggerBody()?['purveyorDatocmsId']}\"){ message favoritePurveyors{ name datocms_id} }}"
+						"query": "mutation { updateFavouriteRecipe(auth0:\"@{body('Parse_JSON_-_Headers')?['X-Authorization']}\",recipeDatocmsId:\"@{triggerBody()?['recipeDatocmsId']}\"){ message favoriteRecipes{ datocms_id name featured_image datocms_purveyor_id datocms_main_category_id datocms_sub_categories datocms_tags duration difficulty taste summary datocms_methods authors_tip is_trending } }}"
 					},
 					"headers": {
 						"Authorization": "@parameters('FaunaDBAuthorizationToken')"
@@ -54,7 +54,7 @@
 		"outputs": {},
 		"parameters": {
 			"FaunaDBAuthorizationToken": {
-				"defaultValue": "Basic Zm5BRUU2dnVPb0FDQXZ4SkljM2R5LUlMWVZjWnFMMU94TDI1b2tnWDpncWwtZGVtbzpzZXJ2ZXI=",
+				"defaultValue": "Basic Zm5BRUU2dnVPb 0FDQXZ4SkljM2R5LUlMWVZjWnFMMU94TDI1b2tnWDpncWwtZGVtbzpzZXJ2ZXI=",
 				"type": "String"
 			},
 			"FaunaDBURL": {
@@ -67,7 +67,7 @@
 				"inputs": {
 					"schema": {
 						"properties": {
-							"purveyorDatocmsId": {
+							"recipeDatocmsId": {
 								"type": "string"
 							}
 						},

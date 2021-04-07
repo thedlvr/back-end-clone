@@ -328,7 +328,7 @@
                 "and": [
                   {
                     "equals": [
-                      "@length(body('Parse_result_to_JSON_from_find_Customer')?['data']?['getUserByEmail'])",
+                      "@length(body('Parse_result_to_JSON_from_find_Customer')?['data']?['findUserByEmail'])",
                       0
                     ]
                   }
@@ -344,7 +344,7 @@
             "Find_Customer_in_FaunaDB": {
               "inputs": {
                 "body": {
-                  "query": "query  { getUserByEmail(email:\"@{triggerBody()?['email']}\")  { _id }}"
+                  "query": "query  { findUserByEmail(email:\"@{triggerBody()?['email']}\")  { _id }}"
                 },
                 "headers": {
                   "Authorization": "@parameters('FaunaDBAuthorizationToken')",
@@ -363,7 +363,7 @@
                   "properties": {
                     "data": {
                       "properties": {
-                        "getUserByEmail": {
+                        "findUserByEmail": {
                           "items": {
                             "properties": {
                               "_id": {
