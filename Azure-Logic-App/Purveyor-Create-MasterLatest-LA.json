@@ -1,0 +1,284 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "Check_Purveyor_not_exist": {
+        "actions": {
+          "Create_Purveyor_in_FaunaDB": {
+            "inputs": {
+              "body": {
+                "query": "mutation { createUser(data:{ auth0_id: \"@{triggerBody()?['entity']?['attributes']?['auth0_id']}\" auth0_client_id: \"@{triggerBody()?['entity']?['attributes']?['auth0_client_id']}\" auth0_created_at: \"@{triggerBody()?['entity']?['attributes']?['auth0_created_at']}\" auth0_email: \"@{triggerBody()?['entity']?['attributes']?['auth0_email']}\" auth0_email_verified: \"@{triggerBody()?['entity']?['attributes']?['auth0_email_verified']}\" auth0_identities0_connection: \"@{triggerBody()?['entity']?['attributes']?['auth0_identities0_connection']}\" auth0_identities0_provider: \"@{triggerBody()?['entity']?['attributes']?['auth0_identities0_provider']}\" auth0_identities0_user_id: \"@{triggerBody()?['entity']?['attributes']?['auth0_identities0_user_id']}\" auth0_identities0_issocial: \"@{triggerBody()?['entity']?['attributes']?['auth0_identities0_issocial']}\" auth0_name: \"@{triggerBody()?['entity']?['attributes']?['auth0_name']}\" auth0_nickname: \"@{triggerBody()?['entity']?['attributes']?['auth0_nickname']}\" auth0_picture: \"@{triggerBody()?['entity']?['attributes']?['auth0_picture']}\" auth0_updated_at: \"@{triggerBody()?['entity']?['attributes']?['auth0_updated_at']}\" auth0_user_id: \"@{triggerBody()?['entity']?['attributes']?['auth0_user_id']}\" auth0_global_client_id: \"@{triggerBody()?['entity']?['attributes']?['auth0_global_client_id']}\" auth0_user_type: PURVEYOR created_at: \"@{triggerBody()?['entity']?['attributes']?['created_at']}\"  }){ _id }}"
+              },
+              "headers": {
+                "Authorization": "@parameters('FaunaDBAuthorizationToken')"
+              },
+              "method": "POST",
+              "uri": "@parameters('FaunaDBURL')"
+            },
+            "runAfter": {},
+            "type": "Http"
+          },
+          "Response": {
+            "inputs": {
+              "body": "@body('Create_Purveyor_in_FaunaDB')",
+              "statusCode": "@outputs('Create_Purveyor_in_FaunaDB')['statusCode']"
+            },
+            "kind": "Http",
+            "runAfter": {
+              "Create_Purveyor_in_FaunaDB": [
+                "Succeeded"
+              ]
+            },
+            "type": "Response"
+          }
+        },
+        "else": {
+          "actions": {
+            "Send_existing_Purveyor_detail": {
+              "inputs": {
+                "body": "@body('Find_Purveyor_in_FaunaDB')",
+                "statusCode": "@outputs('Find_Purveyor_in_FaunaDB')['statusCode']"
+              },
+              "kind": "Http",
+              "runAfter": {},
+              "type": "Response"
+            }
+          }
+        },
+        "expression": {
+          "and": [
+            {
+              "equals": [
+                "@length(body('Parse_result_to_JSON_from_find_Purveyor')?['data']?['findUserByEmail'])",
+                0
+              ]
+            }
+          ]
+        },
+        "runAfter": {
+          "Parse_result_to_JSON_from_find_Purveyor": [
+            "Succeeded"
+          ]
+        },
+        "type": "If"
+      },
+      "Find_Purveyor_in_FaunaDB": {
+        "inputs": {
+          "body": {
+            "query": "query  { findUserByEmail(email:\"@{triggerBody()?['entity']?['attributes']?['auth0_email']}\")  { _id }}"
+          },
+          "headers": {
+            "Authorization": "@parameters('FaunaDBAuthorizationToken')"
+          },
+          "method": "POST",
+          "uri": "@parameters('FaunaDBURL')"
+        },
+        "runAfter": {},
+        "type": "Http"
+      },
+      "Parse_result_to_JSON_from_find_Purveyor": {
+        "inputs": {
+          "content": "@body('Find_Purveyor_in_FaunaDB')",
+          "schema": {
+            "properties": {
+              "data": {
+                "properties": {
+                  "findUserByEmail": {
+                    "items": {
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "_id"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "runAfter": {
+          "Find_Purveyor_in_FaunaDB": [
+            "Succeeded"
+          ]
+        },
+        "type": "ParseJson"
+      }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+      "FaunaDBAuthorizationToken": {
+        "defaultValue": "Basic Zm5BRUU2dnVPb0FDQXZ4SkljM2R5LUlMWVZjWnFMMU94TDI1b2tnWDpncWwtZGVtbzpzZXJ2ZXI=",
+        "type": "String"
+      },
+      "FaunaDBURL": {
+        "defaultValue": "https://graphql.fauna.com/graphql",
+        "type": "String"
+      },
+      "user-type": {
+        "defaultValue": "Purveyor",
+        "type": "String"
+      }
+    },
+    "triggers": {
+      "manual": {
+        "inputs": {
+          "method": "POST",
+          "schema": {
+            "properties": {
+              "entity": {
+                "properties": {
+                  "attributes": {
+                    "properties": {
+                      "auth0_client_id": {
+                        "type": "string"
+                      },
+                      "auth0_created_at": {
+                        "type": "string"
+                      },
+                      "auth0_email": {
+                        "type": "string"
+                      },
+                      "auth0_email_verified": {
+                        "type": "boolean"
+                      },
+                      "auth0_global_client_id": {
+                        "type": "string"
+                      },
+                      "auth0_id": {
+                        "type": "string"
+                      },
+                      "auth0_identities0_connection": {
+                        "type": "string"
+                      },
+                      "auth0_identities0_issocial": {
+                        "type": "boolean"
+                      },
+                      "auth0_identities0_provider": {
+                        "type": "string"
+                      },
+                      "auth0_identities0_user_id": {
+                        "type": "string"
+                      },
+                      "auth0_name": {
+                        "type": "string"
+                      },
+                      "auth0_nickname": {
+                        "type": "string"
+                      },
+                      "auth0_picture": {
+                        "type": "string"
+                      },
+                      "auth0_updated_at": {
+                        "type": "string"
+                      },
+                      "auth0_user_id": {
+                        "type": "string"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "updated_at": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "meta": {
+                    "properties": {
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "current_version": {
+                        "type": "string"
+                      },
+                      "first_published_at": {},
+                      "is_valid": {
+                        "type": "boolean"
+                      },
+                      "publication_scheduled_at": {},
+                      "published_at": {},
+                      "status": {
+                        "type": "string"
+                      },
+                      "unpublishing_scheduled_at": {},
+                      "updated_at": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "relationships": {
+                    "properties": {
+                      "creator": {
+                        "properties": {
+                          "data": {
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "item_type": {
+                        "properties": {
+                          "data": {
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "entity_type": {
+                "type": "string"
+              },
+              "environment": {
+                "type": "string"
+              },
+              "event_type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "kind": "Http",
+        "type": "Request"
+      }
+    }
+  },
+  "parameters": {}
+}

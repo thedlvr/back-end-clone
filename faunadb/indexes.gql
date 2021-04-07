@@ -1,73 +1,39 @@
 CreateIndex({
-  name: "clordersku_by_clorder",
-  source: Collection("clorderskus"),
-  terms: [{ field: ["data", "order", "data", "id"] }],
-values: [{ field: ["data", "reference"] }]
-})
+  name: "findUserByEmail",
+  unique: false,
+  serialized: true,
+  source: Collection("users"),
+  terms: [{field: ["data", "auth0_email"]}]
+});
 
 CreateIndex({
-  name: "clordersku_by_purveyor",
-  source: Collection("clorderskus"),
-  terms: [{ field: ["data", "order", "data", "id"] },{ field: ["data", "reference"] }],
-  values: [{ field: ["data","reference"] },{ field: ["data","code"] },{ field: ["data","name"] },{ field: ["data","pieces_per_pack"] } ]
-})
-
-CreateIndex({
-  name: "purveyorByDatocmsId",
-  source: Collection("purveyors"),
+  name: "findPurveyorByDatocmsId",
+  unique: false,
+  serialized: true,
+  source: Collection("purveyorprofiles"),
   terms: [{ field: ["data", "datocms_id"] }]
-})
+});
 
 CreateIndex({
-  name: "productByDatocmsId",
-  source: Collection("products”),
-  terms: [{ field: ["data", "datocms_id"] }]
-})
+  name: "findFavoritePurveyorByUser",
+  unique: false,
+  serialized: true,
+  source: Collection("user_favorite_purveyors"),
+  terms: [{ field: ["data", "userId"] }]
+});
 
 CreateIndex({
-  name: "purveyorByChecId",
-  source: Collection("purveyors"),
-  terms: [{ field: ["data", "checId"] }]
-})
-
-CreateIndex({
-  name: "customerByEmail",
-  source: Collection("customers"),
-  terms: [{ field: ["data", "email"] }]
-})
-
-CreateIndex({
-  name: "productBySKU",
-  source: Collection("products"),
-  terms: [{ field: ["data", "sku"] }]
-})
-
-CreateIndex({
-  name: "favoriteproductByCustomer",
-  source: Collection("customer_favoriteproducts"),
-  terms: [{ field: ["data", "customerID"] }]
-})
-
-CreateIndex({
-  name: "favoritepurveyorByCustomer",
-  source: Collection("customer_favoritepurveyors"),
-  terms: [{ field: ["data", "customerID"] }]
-})
-
-CreateIndex({
- name: "clorderByOrderId",
- source: Collection("clorders"),
- terms: [{ field: ["data", "order_id"] }]
-})
-
-CreateIndex({
-  name: "recipeByDatocmsId",
+  name: "findRecipeByDatocmsId",
+  unique: false,
+  serialized: true,
   source: Collection("recipes"),
   terms: [{ field: ["data", "datocms_id"] }]
-})
+});
 
 CreateIndex({
-  name: "favoriterecipeByCustomer",
-  source: Collection("customer_favoriterecipes"),
-  terms: [{ field: ["data", "customerID"] }]
-})
+  name: "findFavoriteRecipeByUser",
+  unique: false,
+  serialized: true,
+  source: Collection("user_favorite_recipes"),
+  terms: [{ field: ["data", "userId"] }]
+});

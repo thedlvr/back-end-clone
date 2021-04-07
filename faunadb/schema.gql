@@ -1,254 +1,120 @@
-type Customer @collection(name: "customers") {
+# User Collections
+
+type User @collection(name: "users") {
+  auth0_client_id: String
+  auth0_created_at: String
+  auth0_email: String
+  auth0_email_verified: String
+  auth0_global_client_id: String
   auth0_id: String
-  user_id: String
-  user_id_withauth0: String
-  name: String
-  nickname: String
-  email: String
-  email_verified: String
-  picture_url: String
-  global_client_id: String
-  connection: String
-  is_social: String
-  client_id: String
-  provider: String
-  favoriteproducts: [Product] @relation
-  favoritepurveyors: [Purveyor] @relation
-  favoriterecipes: [Recipe] @relation
-  cl_orders: [CLOrder] @relation
+  auth0_identities0_connection: String
+  auth0_identities0_issocial: String
+  auth0_identities0_provider: String
+  auth0_identities0_user_id: String
+  auth0_name: String
+  auth0_nickname: String
+  auth0_picture: String
+  auth0_updated_at: String
+  auth0_user_id: String
+  auth0_user_type: UserType
+  purveyor_profile: PurveyorProfile @relation
+  favorite_products: [Product] @relation(name: "user_favorite_products")
+  favorite_purveyors: [PurveyorProfile] @relation(name: "user_favorite_purveyors")
+  favorite_recipes: [Recipe] @relation(name: "user_favorite_recipes")
   created_at: String
-  updated_at: String
-  chec_orders: [ChecOrder] @relation
 }
 
-type Purveyor @collection(name: "purveyors") {
-  datocms_id: String!
-  name: String
-  checId: String!
-  checPublicKey: String!
-  checSecretKey: String!
-  checSandboxPublicKey: String!
-  checSandboxSecretKey: String!
-  customers: [Customer] @relation
+type PurveyorProfile @collection(name: "purveyorprofiles") {
+  providore_purveyor_id: Int!
+  user: User! @relation
+  datocms_merchant_name: String
+  datocms_id: Int!
+  datocms_slug: String
+  datocms_tag_line: String
+  datocms_featured_image_url: String
+  datocms_location_lat: String
+  datocms_location_long: String
+  datocms_location_display_name: String
+  datocms_featured_product: [Product]
+  datocms_major_categories: [Int]
+  datocms_bio: String
+  favoritedby_users: [User] @relation(name: "user_favorite_purveyors")
 }
+
+# Product Collections
 
 type Product @collection(name: "products") {
   datocms_id: String!
-  chec_product_id: String
-  name: String
-  sku: String
-  price: Int
-  description: String
-  datocms_purveyor_id: String
-  product_measurement: String
-  product_variant: String
-  dietary_tag: String
+  datocms_name: String
+  datocms_price: Float
+  datocms_description: String
+  datocms_product_measurement: String
+  datocms_product_variant: String
+  datocms_dietary_tag: String
   cl_id: String
-  customers: [Customer] @relation
+  cl_sku: String
+  users: [User] @relation(name: "user_favorite_products")
+  purveyor_profile: PurveyorProfile @relation
+  product_options: [ProductOption] @relation
+  created_at: String
 }
+
+type ProductOption @collection(name: "productoptions") {
+  datocms_product_option_id: String!
+  datocms_display_name: String
+  datocms_product_variant_sku: String
+  datocms_variant_combination: [ProductVariantCombination]
+  product: Product @relation
+  created_at: String
+}
+
+type ProductVariantCombination @embedded {
+  datocms_variant_type: VariantType!
+  datocms_variant_value: VariantValue!
+  datocms_product_option: ProductOption @relation
+}
+
+type VariantType @embedded {
+  datocms_id: String!
+  datocms_name: String!
+}
+
+type VariantValue @embedded {
+  datocms_id: String!
+  datocms_display_name: String
+  datocms_value: String!
+}
+
+# Recipe Collections
 
 type Recipe @collection(name: "recipes") {
   datocms_id: String!
-  name: String
-  featured_image: String
-  datocms_purveyor_id: String
   datocms_main_category_id: String
   datocms_sub_categories: [String]
   datocms_tags: [String]
-  duration: Int
-  difficulty: String
-  taste: String
-  summary: String
   datocms_methods: [String]
-  authors_tip: String
-  is_trending: String
-  customers: [Customer] @relation
-}
-
-type CLOrderAttribute @embedded {
-  number: Int
-  status: String
-  payment_status: String
-  fulfillment_status: String
-  guest: Boolean
-  editable: Boolean
-  placeable: Boolean
-  customer_email: String
-  language_code: String
-  currency_code: String
-  tax_included: Boolean
-  tax_rate: String
-  freight_taxable: String
-  requires_billing_info: Boolean
-  country_code: String
-  shipping_country_code_lock: String
-  coupon_code: String
-  gift_card_code: String
-  gift_card_or_coupon_code: String
-  subtotal_amount_cents: Int
-  subtotal_amount_float: Float
-  formatted_subtotal_amount: String
-  shipping_amount_cents: Int
-  shipping_amount_float: Float
-  formatted_shipping_amount: String
-  payment_method_amount_cents: Int
-  payment_method_amount_float: Float
-  formatted_payment_method_amount: String
-  discount_amount_cents: Int
-  discount_amount_float: Float
-  formatted_discount_amount: String
-  adjustment_amount_cents: Int
-  adjustment_amount_float: Float
-  formatted_adjustment_amount: String
-  gift_card_amount_cents: Int
-  gift_card_amount_float: Float
-  formatted_gift_card_amount: String
-  total_tax_amount_cents: Int
-  total_tax_amount_float: Float
-  formatted_total_tax_amount: String
-  subtotal_tax_amount_cents: Int
-  subtotal_tax_amount_float: Float
-  formatted_subtotal_tax_amount: String
-  shipping_tax_amount_cents: Int
-  shipping_tax_amount_float: Float
-  formatted_shipping_tax_amount: String
-  payment_method_tax_amount_cents: Int
-  payment_method_tax_amount_float: Float
-  formatted_payment_method_tax_amount: String
-  adjustment_tax_amount_cents: Int
-  adjustment_tax_amount_float: Float
-  formatted_adjustment_tax_amount: String
-  total_amount_cents: Int
-  total_amount_float: Float
-  formatted_total_amount: String
-  total_taxable_amount_cents: Int
-  total_taxable_amount_float: Float
-  formatted_total_taxable_amount: String
-  subtotal_taxable_amount_cents: Int
-  subtotal_taxable_amount_float: Float
-  formatted_subtotal_taxable_amount: String
-  shipping_taxable_amount_cents: Int
-  shipping_taxable_amount_float: Float
-  formatted_shipping_taxable_amount: String
-  payment_method_taxable_amount_cents: Int
-  payment_method_taxable_amount_float: Float
-  formatted_payment_method_taxable_amount: String
-  adjustment_taxable_amount_cents: Int
-  adjustment_taxable_amount_float: Float
-  formatted_adjustment_taxable_amount: String
-  total_amount_with_taxes_cents: Int
-  total_amount_with_taxes_float: Float
-  formatted_total_amount_with_taxes: String
-  fees_amount_cents: Int
-  fees_amount_float: Float
-  formatted_fees_amount: String
-  authorization_amount_cents: Int
-  authorization_amount_float: Float
-  formatted_authorization_amount: String
-  authorization_balance_cents: Int
-  authorization_balance_float: Float
-  formatted_authorization_balance: String
-  skus_count: Int
-  line_item_options_count: Int
-  shipments_count: Int
-  payment_source_details: String
-  token: String
-  cart_url: String
-  return_url: String
-  terms_url: String
-  privacy_url: String
-  checkout_url: String
-  placed_at: String
-  approved_at: String
-  cancelled_at: String
-  payment_updated_at: String
-  fulfillment_updated_at: String
+  datocms_name: String
+  datocms_featured_image_url: String
+  datocms_duration: Int
+  datocms_difficulty: String
+  datocms_taste: String
+  datocms_summary: String
+  datocms_authors_tip: String
+  datocms_is_trending: String
+  purveyor_profile: PurveyorProfile
+  favoritedby_users: [User] @relation(name: "user_favorite_recipes")
   created_at: String
-  updated_at: String
-  reference: String
-  reference_origin: String
 }
 
-type CLAddress @embedded {
-  first_name: String
-  last_name: String
-  company: String
-  email: String
-  phone: String
-  line_1: String
-  line_2: String
-  city: String
-  state_code: String
-  country_code: String
-  zip_code: String
-  lat: String
-  lng: String
-  cl_order: CLOrderSKU
-}
+# Custom Payloads
 
-type CLOrderSKU @embedded {
-  product: Product
-  cl_order: CLOrder @relation
-  sku: String
-  quantity: Int
-  created_at: String
-  updated_at: String
-}
-
-type CLOrder @collection(name: "clorders") {
-  cl_order_id: String
-  customer: Customer @relation
-  attributes: CLOrderAttribute
-  items: [CLOrderSKU]
-  shipping: CLAddress
-  billing: CLAddress
-  chec_orders: [ChecOrder] @relation
-  created_at: Int
-}
-
-type CustomerFavoriteProductPaylod @embedded {
+type UserFavoriteProductPaylod @embedded {
   message: String
   favoriteProducts: [FavoriteProduct]
 }
 
-type CustomerFavoritePurveyorPaylod @embedded {
-  message: String
-  favoritePurveyors: [FavoritePurveyor]
-}
-
-type CustomerFavoriteRecipePaylod @embedded {
-  message: String
-  favoriteRecipes: [FavoriteRecipe]
-}
-
-type CustomerProfilePayload @embedded {
-  customer: CustomerProfile
-  favoriteproducts: [FavoriteProduct]
-  favoritepurveyors: [FavoritePurveyor]
-  favoriterecipes: [FavoriteRecipe]
-}
-
-type CustomerProfile @embedded {
-  auth0_id: String
-  user_id: String
-  user_id_withauth0: String
-  name: String
-  nickname: String
-  email: String
-  email_verified: String
-  picture_url: String
-  global_client_id: String
-  connection: String
-  is_social: String
-  client_id: String
-  provider: String
-  created_at: String
-  updated_at: String
-}
-
 type FavoriteProduct @embedded {
   datocms_id: String!
-  chec_product_id: String
   name: String
   sku: String
   price: Int
@@ -258,6 +124,11 @@ type FavoriteProduct @embedded {
   product_variant: String
   dietary_tag: String
   cl_id: String
+}
+
+type UserFavoritePurveyorPaylod @embedded {
+  message: String
+  favoritePurveyors: [FavoritePurveyor]
 }
 
 type FavoritePurveyor @embedded {
@@ -265,349 +136,113 @@ type FavoritePurveyor @embedded {
   name: String
 }
 
+type UserFavoriteRecipePaylod @embedded {
+  message: String
+  favoriteRecipes: [FavoriteRecipe]
+}
+
 type FavoriteRecipe @embedded {
   datocms_id: String
-  name: String
-  featured_image: String
   datocms_purveyor_id: String
   datocms_main_category_id: String
   datocms_sub_categories: [String]
   datocms_tags: [String]
+  datocms_methods: [String]
+  name: String
+  featured_image: String
   duration: Int
   difficulty: String
   taste: String
   summary: String
-  datocms_methods: [String]
   authors_tip: String
   is_trending: String
 }
 
-type CLOrderSKUsOutput @embedded {
-  sku: String
-  name: String
-  pieces_per_pack: String
-  reference: String
-}
+#Enums
 
-type clorderSkusPayload @embedded {
-  data: [SkuPurveyor]
-}
+enum UserType {
+  CUSTOMER
+  PURVEYOR
+} 
 
-type SkuPurveyor @embedded {
-  data: [CLOrderSKUsOutput]
-}
+# Inputs
 
-type ChecOrderAttribute @embedded {
-  cart_id: String!
-  created: Int
-  customer_reference: String!
-  status_payment: String!
-  status_fulfillment: String!
-  customer_email: String!
-  customer_firstname: String!
-  customer_lastname: String
-  currency_code: String!
-  currency_symbol: String!
-  subtotal_raw: Int
-  subtotal_formatted: String
-  shipping_price_raw: Int
-  shipping_price_formatted: String
-  tax_raw: Int
-  tax_formatted: String
-  tax_included_in_price: Boolean
-  total_raw: Int
-  total_formatted: String
-  total_with_tax_raw: Int
-  total_with_tax_formatted: String
-  total_paid_raw: Int
-  total_paid_formatted: String
-}
-
-type ChecOrder @collection(name: "checorders") {
-  chec_order_id: String!
-  purveyor: Purveyor
-  attributes: ChecOrderAttribute
-  cl_order: CLOrder @relation
-  items: [ChecOrderSKU]
-  customer: Customer @relation
-  created_at: Int
-}
-
-type ChecOrderSKU @embedded {
-  chec_order_item_id: String!
-  chec_product_id: String!
-  chec_product_name: String!
-  type: String!
-  sku: String!
-  quantity: Int
-  price_raw: Int
-  price_formatted: String
-  tax_is_taxable: Boolean
-  taxable_amount_raw: Int
-  taxable_amount_formatted: String
-  tax_amount_raw: Int
-  tax_amount_formatted: String
-  line_total_raw: Int
-  line_total_formatted: String
-  line_total_with_tax_raw: Int
-  line_total_with_tax_formatted: String
-  product: Product
-  checOrder: ChecOrder @relation
-}
-
-# INPUT
-
-input CLOrderAttributeInput {
-  number: Int
-  status: String
-  payment_status: String
-  fulfillment_status: String
-  guest: Boolean
-  editable: Boolean
-  placeable: Boolean
-  customer_email: String
-  language_code: String
-  currency_code: String
-  tax_included: Boolean
-  tax_rate: String
-  freight_taxable: String
-  requires_billing_info: Boolean
-  country_code: String
-  shipping_country_code_lock: String
-  coupon_code: String
-  gift_card_code: String
-  gift_card_or_coupon_code: String
-  subtotal_amount_cents: Int
-  subtotal_amount_float: Float
-  formatted_subtotal_amount: String
-  shipping_amount_cents: Int
-  shipping_amount_float: Float
-  formatted_shipping_amount: String
-  payment_method_amount_cents: Int
-  payment_method_amount_float: Float
-  formatted_payment_method_amount: String
-  discount_amount_cents: Int
-  discount_amount_float: Float
-  formatted_discount_amount: String
-  adjustment_amount_cents: Int
-  adjustment_amount_float: Float
-  formatted_adjustment_amount: String
-  gift_card_amount_cents: Int
-  gift_card_amount_float: Float
-  formatted_gift_card_amount: String
-  total_tax_amount_cents: Int
-  total_tax_amount_float: Float
-  formatted_total_tax_amount: String
-  subtotal_tax_amount_cents: Int
-  subtotal_tax_amount_float: Float
-  formatted_subtotal_tax_amount: String
-  shipping_tax_amount_cents: Int
-  shipping_tax_amount_float: Float
-  formatted_shipping_tax_amount: String
-  payment_method_tax_amount_cents: Int
-  payment_method_tax_amount_float: Float
-  formatted_payment_method_tax_amount: String
-  adjustment_tax_amount_cents: Int
-  adjustment_tax_amount_float: Float
-  formatted_adjustment_tax_amount: String
-  total_amount_cents: Int
-  total_amount_float: Float
-  formatted_total_amount: String
-  total_taxable_amount_cents: Int
-  total_taxable_amount_float: Float
-  formatted_total_taxable_amount: String
-  subtotal_taxable_amount_cents: Int
-  subtotal_taxable_amount_float: Float
-  formatted_subtotal_taxable_amount: String
-  shipping_taxable_amount_cents: Int
-  shipping_taxable_amount_float: Float
-  formatted_shipping_taxable_amount: String
-  payment_method_taxable_amount_cents: Int
-  payment_method_taxable_amount_float: Float
-  formatted_payment_method_taxable_amount: String
-  adjustment_taxable_amount_cents: Int
-  adjustment_taxable_amount_float: Float
-  formatted_adjustment_taxable_amount: String
-  total_amount_with_taxes_cents: Int
-  total_amount_with_taxes_float: Float
-  formatted_total_amount_with_taxes: String
-  fees_amount_cents: Int
-  fees_amount_float: Float
-  formatted_fees_amount: String
-  authorization_amount_cents: Int
-  authorization_amount_float: Float
-  formatted_authorization_amount: String
-  authorization_balance_cents: Int
-  authorization_balance_float: Float
-  formatted_authorization_balance: String
-  skus_count: Int
-  line_item_options_count: Int
-  shipments_count: Int
-  payment_source_details: String
-  token: String
-  cart_url: String
-  return_url: String
-  terms_url: String
-  privacy_url: String
-  checkout_url: String
-  placed_at: String
-  approved_at: String
-  cancelled_at: String
-  payment_updated_at: String
-  fulfillment_updated_at: String
-  created_at: String
-  updated_at: String
-  reference: String
-  reference_origin: String
-}
-
-input CLOrderSKUInput {
-  sku: String
-  quantity: Int
-  created_at: String
-  updated_at: String
-}
-
-input CLAddressInput {
-  first_name: String
-  last_name: String
-  company: String
-  email: String
-  phone: String
-  line_1: String
-  line_2: String
-  city: String
-  state_code: String
-  country_code: String
-  zip_code: String
-  lat: String
-  lng: String
-}
-
-input ChecOrderAttributeInput {
-  cart_id: String!
-  created: Int
-  customer_reference: String!
-  status_payment: String!
-  status_fulfillment: String!
-  customer_email: String!
-  customer_firstname: String!
-  customer_lastname: String
-  currency_code: String!
-  currency_symbol: String!
-  subtotal_raw: Int
-  subtotal_formatted: String
-  shipping_price_raw: Int
-  shipping_price_formatted: String
-  tax_raw: Int
-  tax_formatted: String
-  tax_included_in_price: Boolean
-  total_raw: Int
-  total_formatted: String
-  total_with_tax_raw: Int
-  total_with_tax_formatted: String
-  total_paid_raw: Int
-  total_paid_formatted: String
-}
-
-input ChecOrderSKUInput {
-  chec_order_item_id: String!
-  chec_product_id: String!
-  chec_product_name: String!
-  type: String!
-  sku: String!
-  quantity: Int
-  price_raw: Int
-  price_formatted: String
-  tax_is_taxable: Boolean
-  taxable_amount_raw: Int
-  taxable_amount_formatted: String
-  tax_amount_raw: Int
-  tax_amount_formatted: String
-  line_total_raw: Int
-  line_total_formatted: String
-  line_total_with_tax_raw: Int
-  line_total_with_tax_formatted: String
-}
-
-# END OF INPUT
+# Queries
 
 type Query {
-  allOrders: [CLOrder!]
-  clorderByOrderId(cl_order_id: String): [CLOrder!]
-  allPurveyors: [Purveyor!]
-  purveyorByChecId(checId: String!): [Purveyor!]
+  allUsers: [User!]
+  # used to find user record by email address. used in create customer logic app, previous name -> customerByEmail
+  findUserByEmail(email: String!): User @resolver(name: "findUserByEmail", paginated: false)
+  # used to find user's profile in nextjs app, previous name -> customerProfileByAuth0. used in find customer logic app
+  findUserByAuth0(auth0: String!): User @resolver(name: "findUserByAuth0", paginated: false)
+  findPurveyorByDatocmsId(datocmsId: String!): [User!] @resolver(name: "findPurveyorByDatocmsId", paginated: false)
+  findRecipeByDatocmsId(datocmsId: String!): [Recipe!] @resolver(name: "findRecipeByDatocmsId", paginated: false)
+  allPurveyors: [User!]
+  purveyorByChecId(checId: String!): [User!]
     @resolver(name: "purveyorByChecId", paginated: false)
-  clorderSkusByPurveyor(orderId: String!): clorderSkusPayload!
-    @resolver(name: "getSkusByPurveyor", paginated: false)
-  purveyorByDatocmsId(datocmsId: String!): [Purveyor!]
-    @resolver(name: "purveyorByDatocmsId", paginated: false)
-  customerByEmail(email: String!): [Customer!]
-    @resolver(name: "customerByEmail", paginated: false)
-  customerProfileByAuth0(auth0: String!): CustomerProfilePayload
-    @resolver(name: "customerProfile", paginated: false)
-  recipeByDatocmsId(datocmsId: String!): [Recipe!]
-    @resolver(name: "recipeByDatocmsId", paginated: false)
 }
 
+# Functions
+
 type Mutation {
-  createCLOrder(
-    cl_order_id: String!
-    email: String!
-    attributes: CLOrderAttributeInput!
-    items: [CLOrderSKUInput!]
-    shipping: CLAddressInput
-    billing: CLAddressInput
-  ): CLOrder! @resolver
-  createChecOrder(
-    chec_order_id: String!
-    chec_id: String!
-    cl_order_id: String
-    email: String!
-    attributes: ChecOrderAttributeInput!
-    items: [ChecOrderSKUInput!]
-  ): ChecOrder! @resolver
   updatePurveyor(
+    providore_purveyor_id: Int!
+    datocms_merchant_name: String
+    datocms_id: Int!
+    datocms_slug: String
+    datocms_tag_line: String
+    datocms_featured_image_url: String
+    datocms_location_lat: String
+    datocms_location_long: String
+    datocms_location_display_name: String
+    datocms_major_categories: [Int]
+    datocms_bio: String
+  ): PurveyorProfile! @resolver
+
+  updateProduct(
     datocms_id: String!
-    name: String
-    checSecretKey: String
-    checSandboxSecretKey: String
-    checPublicKey: String
-    checSandboxPublicKey: String
-    checId: String
-  ): Purveyor! @resolver
-  productUpdateByDatocmsId(
-    datocms_id: String!
-    name: String
-    product_measurement: String
-    sku: String
-    dietary_tag: String
-    product_variant: String
-    description: String
-    price: String
+    datocms_name: String
+    datocms_price: Float
+    datocms_description: String
+    datocms_product_measurement: String
+    datocms_product_unit: String
+    datocms_dietary_tag: String
     datocms_purveyor_id: String
+    datocms_slug: String
+    datocms_product_options: [Int]
+    cl_id: String
+    cl_sku: String
   ): Product! @resolver
-  updateFavouriteProduct(auth0: String!, sku: String!): CustomerFavoriteProductPaylod
-    @resolver(name: "favouriteproduct", paginated: false)
-  updateFavouritePurveyor(
+
+  updateFavoriteProduct(
+    auth0: String!
+    sku: String!
+  ): UserFavoriteProductPaylod
+    @resolver(name: "favoriteproduct", paginated: false)
+
+  updateFavoritePurveyor(
     auth0: String!
     purveyorDatocmsId: String!
-  ): CustomerFavoritePurveyorPaylod @resolver(name: "favouritepurveyor", paginated: false)
-  updateFavouriteRecipe(
+  ): UserFavoritePurveyorPaylod
+    @resolver(name: "favoritePurveyor", paginated: false)
+
+  updateFavoriteRecipe(
     auth0: String!
     recipeDatocmsId: String!
-  ): CustomerFavoriteRecipePaylod @resolver(name: "favouriterecipe", paginated: false)
+  ): UserFavoriteRecipePaylod
+    @resolver(name: "favoriteRecipe", paginated: false)
+
   updateRecipe(
     datocms_id: String!
-    name: String
     datocms_purveyor_id: String
     datocms_main_category_id: String
     datocms_sub_categories: [String]
     datocms_tags: [String]
+    datocms_methods: [String]
+    name: String
     duration: String
     authors_tip: String
     difficulty: String
-    datocms_methods: [String]
     featured_image: String
     is_trending: String
     summary: String
