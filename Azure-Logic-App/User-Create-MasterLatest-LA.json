@@ -55,7 +55,7 @@
                   "body": "@body('Create_Purveyor_in_DatoCMS')",
                   "statusCode": "@outputs('Create_Purveyor_in_DatoCMS')['statusCode']"
                 },
-                "kind": "http",
+                "kind": "Http",
                 "runAfter": {
                   "Create_Purveyor_in_DatoCMS": [
                     "Succeeded",
@@ -72,7 +72,7 @@
                     "body": "@body('Find_Purveyor_in_DatoCMS')",
                     "statusCode": "@outputs('Find_Purveyor_in_DatoCMS')['statusCode']"
                   },
-                  "kind": "http",
+                  "kind": "Http",
                   "runAfter": {},
                   "type": "Response"
                 }
@@ -301,7 +301,7 @@
                     "body": "@body('Create_Customer_in_FaunaDB')",
                     "statusCode": "@outputs('Create_Customer_in_FaunaDB')['statusCode']"
                   },
-                  "kind": "http",
+                  "kind": "Http",
                   "runAfter": {
                     "Create_Customer_in_FaunaDB": [
                       "Succeeded",
@@ -318,7 +318,7 @@
                       "body": "@body('Find_Customer_in_FaunaDB')",
                       "statusCode": "@outputs('Find_Customer_in_FaunaDB')['statusCode']"
                     },
-                    "kind": "http",
+                    "kind": "Http",
                     "runAfter": {},
                     "type": "Response"
                   }
@@ -328,7 +328,7 @@
                 "and": [
                   {
                     "equals": [
-                      "@length(body('Parse_result_to_JSON_from_find_Customer')?['data']?['userByEmail'])",
+                      "@length(body('Parse_result_to_JSON_from_find_Customer')?['data']?['getUserByEmail'])",
                       0
                     ]
                   }
