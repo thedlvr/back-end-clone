@@ -51,7 +51,7 @@ Update(Function("favoritePurveyor"), {
             {
               purveyors: Map(
                 Paginate(
-                  Match(Index("getPurveyorByDatocmsId"), Var("datocms_id"))
+                  Match(Index("findPurveyorByDatocmsId"), Var("datocms_id"))
                 ),
                 Lambda("purveyors", Get(Var("purveyors")))
               )
@@ -173,7 +173,7 @@ Update(Function("findRecipeByDatocmsId"), {
       Let(
         {
           recipes: Map(
-            Paginate(Match(Index("getRecipeByDatocmsId"), Var("datocms_id"))),
+            Paginate(Match(Index("findRecipeByDatocmsId"), Var("datocms_id"))),
             Lambda("recipes", Get(Var("recipes")))
           )
         },
@@ -202,7 +202,7 @@ Update(Function("favoriteRecipe"), {
             {
               recipes: Map(
                 Paginate(
-                  Match(Index("getRecipeByDatocmsId"), Var("datocms_id"))
+                  Match(Index("findRecipeByDatocmsId"), Var("datocms_id"))
                 ),
                 Lambda("recipes", Get(Var("recipes")))
               )
@@ -213,7 +213,7 @@ Update(Function("favoriteRecipe"), {
             {
               favoriteRecipeRefs: Paginate(
                 Match(
-                  Index("getFavoriteRecipeByUser"),
+                  Index("findFavoriteRecipeByUser"),
                   Select("ref", Var("user"), false)
                 )
               ),
@@ -312,6 +312,52 @@ Update(Function("favoriteRecipe"), {
           ),
           favoriteRecipes: Var("favoriteRecipesUpdated")
         }
+      )
+    )
+  )
+});
+
+Update(Function("updateRecipe"), {
+  "body": Query(
+    Lambda(
+      [
+        "datocms_id",
+        "datocms_main_category_id",
+        "datocms_sub_categories",
+        "datocms_tags",
+        "datocms_methods",
+        "datocms_name",
+        "datocms_featured_image_url",
+        "datocms_duration",
+        "datocms_difficulty",
+        "datocms_taste",
+        "datocms_summary",
+        "datocms_authors_tip",
+        "datocms_is_trending"
+      ],
+      Let(
+        {
+          recipes: Map(
+            Paginate(Match(Index("findRecipeByDatocmsId"), Var("datocms_id"))),
+            Lambda("recipes", Get(Var("recipes")))
+          )
+        },
+        Update(Select("ref", Select([0], Var("recipes"), false), false), {
+          data: {
+            datocms_main_category_id: Var("datocms_main_category_id"),
+            datocms_sub_categories: Var("datocms_sub_categories"),
+            datocms_tags: Var("datocms_tags"),
+            datocms_methods: Var("datocms_methods"),
+            datocms_name: Var("datocms_name"),
+            datocms_featured_image_url: Var("datocms_featured_image_url"),
+            datocms_duration: Var("datocms_duration"),
+            datocms_difficulty: Var("datocms_difficulty"),
+            datocms_taste: Var("datocms_taste"),
+            datocms_summary: Var("datocms_summary"),
+            datocms_authors_tip: Var("datocms_authors_tip"),
+            datocms_is_trending: Var("datocms_is_trending")
+          }
+        })
       )
     )
   )
