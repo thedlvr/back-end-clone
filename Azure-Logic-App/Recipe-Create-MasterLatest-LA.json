@@ -1,0 +1,337 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "Check_Recipe_is_exist": {
+        "actions": {
+          "Send_Updated_Recipe_response": {
+            "inputs": {
+              "body": "@body('Update_Recipe_in_FaunaDB')",
+              "statusCode": "@outputs('Update_Recipe_in_FaunaDB')['statusCode']"
+            },
+            "kind": "http",
+            "runAfter": {
+              "Update_Recipe_in_FaunaDB": [
+                "Succeeded",
+                "Failed"
+              ]
+            },
+            "type": "Response"
+          },
+          "Update_Recipe_in_FaunaDB": {
+            "inputs": {
+              "body": {
+                "query": "mutation UpdateRecipe { updateRecipe(datocms_id:\"@{triggerBody()?['entity']?['id']}\" datocms_name: \"@{triggerBody()?['entity']?['attributes']?['name']}\" datocms_main_category_id: \"@{triggerBody()?['entity']?['attributes']?['main_category']}\" datocms_sub_categories: @{triggerBody()?['entity']?['attributes']?['sub_categories']} datocms_tags: @{triggerBody()?['entity']?['attributes']?['tags']} datocms_duration: \"@{triggerBody()?['entity']?['attributes']?['duration']}\" datocms_authors_tip: \"@{triggerBody()?['entity']?['attributes']?['author_s_tip']}\" datocms_difficulty: \"@{triggerBody()?['entity']?['attributes']?['difficulty']}\" datocms_methods: @{triggerBody()?['entity']?['attributes']?['methods']} datocms_featured_image_url: \"@{triggerBody()?['entity']?['attributes']?['featured_image']?['path']}\" datocms_is_trending: \"@{triggerBody()?['entity']?['attributes']?['trending']}\" datocms_summary: \"@{triggerBody()?['entity']?['attributes']?['summary']}\") { _id }}"
+              },
+              "headers": {
+                "Authorization": "@parameters('FaunaDBAuthorizationToken')"
+              },
+              "method": "POST",
+              "uri": "@parameters('FaunaDBURL')"
+            },
+            "runAfter": {},
+            "type": "Http"
+          }
+        },
+        "else": {
+          "actions": {
+            "Create_Recipe_in_FaunaDB": {
+              "inputs": {
+                "body": {
+                  "query": "mutation CreateRecipe { createRecipe(data:{ datocms_id:\"@{triggerBody()?['entity']?['id']}\" datocms_name: \"@{triggerBody()?['entity']?['attributes']?['name']}\" datocms_featured_image_url: \"@{triggerBody()?['entity']?['attributes']?['featured_image']?['path']}\" purveyor_profile: \"@{triggerBody()?['entity']?['attributes']?['purveyor']}\" datocms_main_category_id: \"@{triggerBody()?['entity']?['attributes']?['main_category']}\" datocms_sub_categories: @{triggerBody()?['entity']?['attributes']?['sub_categories']} datocms_tags: @{triggerBody()?['entity']?['attributes']?['tags']} datocms_duration: @{triggerBody()?['entity']?['attributes']?['duration']} datocms_difficulty: \"@{triggerBody()?['entity']?['attributes']?['difficulty']}\" datocms_taste: \"@{triggerBody()?['entity']?['attributes']?['taste']}\" datocms_summary: \"@{triggerBody()?['entity']?['attributes']?['summary']}\" datocms_methods: @{triggerBody()?['entity']?['attributes']?['methods']} datocms_authors_tip: \"@{triggerBody()?['entity']?['attributes']?['author_s_tip']}\" datocms_is_trending: \"@{triggerBody()?['entity']?['attributes']?['trending']}\" }) { _id } }"
+                },
+                "headers": {
+                  "Authorization": "@parameters('FaunaDBAuthorizationToken')"
+                },
+                "method": "POST",
+                "uri": "@parameters('FaunaDBURL')"
+              },
+              "runAfter": {},
+              "type": "Http"
+            },
+            "Send_created_Recipe_response": {
+              "inputs": {
+                "body": "@body('Create_Recipe_in_FaunaDB')",
+                "statusCode": "@outputs('Create_Recipe_in_FaunaDB')['statusCode']"
+              },
+              "kind": "http",
+              "runAfter": {
+                "Create_Recipe_in_FaunaDB": [
+                  "Succeeded",
+                  "Failed"
+                ]
+              },
+              "type": "Response"
+            }
+          }
+        },
+        "expression": {
+          "and": [
+            {
+              "greater": [
+                "@length(body('Parse_result_to_JSON_from_find_Recipe')?['data']?['findRecipeByDatocmsId'])",
+                0
+              ]
+            }
+          ]
+        },
+        "runAfter": {
+          "Parse_result_to_JSON_from_find_Recipe": [
+            "Succeeded"
+          ]
+        },
+        "type": "If"
+      },
+      "Find_Recipe_in_FaunaDB": {
+        "inputs": {
+          "body": {
+            "query": "query  { findRecipeByDatocmsId(datocmsId:\"@{triggerBody()?['entity']?['id']}\")  { _id }}"
+          },
+          "headers": {
+            "Authorization": "@parameters('FaunaDBAuthorizationToken')"
+          },
+          "method": "POST",
+          "uri": "@parameters('FaunaDBURL')"
+        },
+        "runAfter": {},
+        "type": "Http"
+      },
+      "Parse_result_to_JSON_from_find_Recipe": {
+        "inputs": {
+          "content": "@body('Find_Recipe_in_FaunaDB')",
+          "schema": {
+            "properties": {
+              "data": {
+                "properties": {
+                  "findRecipeByDatocmsId": {
+                    "items": {
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "_id"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "runAfter": {
+          "Find_Recipe_in_FaunaDB": [
+            "Succeeded"
+          ]
+        },
+        "type": "ParseJson"
+      },
+      "Send_find_Recipe_failed_response": {
+        "inputs": {
+          "body": "@body('Find_Recipe_in_FaunaDB')",
+          "statusCode": "@outputs('Find_Recipe_in_FaunaDB')['statusCode']"
+        },
+        "kind": "http",
+        "runAfter": {
+          "Find_Recipe_in_FaunaDB": [
+            "Failed"
+          ]
+        },
+        "type": "Response"
+      }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+      "FaunaDBAuthorizationToken": {
+        "defaultValue": "Basic Zm5BRUU2dnVPb0FDQXZ4SkljM2R5LUlMWVZjWnFMMU94TDI1b2tnWDpncWwtZGVtbzpzZXJ2ZXI=",
+        "type": "String"
+      },
+      "FaunaDBURL": {
+        "defaultValue": "https://graphql.fauna.com/graphql",
+        "type": "String"
+      }
+    },
+    "triggers": {
+      "manual": {
+        "inputs": {
+          "schema": {
+            "properties": {
+              "entity": {
+                "properties": {
+                  "attributes": {
+                    "properties": {
+                      "author_s_tip": {
+                        "type": "string"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "difficulty": {
+                        "type": "string"
+                      },
+                      "duration": {
+                        "type": "integer"
+                      },
+                      "featured_image": {
+                        "properties": {
+                          "alt": {},
+                          "format": {
+                            "type": "string"
+                          },
+                          "height": {
+                            "type": "integer"
+                          },
+                          "path": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "integer"
+                          },
+                          "title": {},
+                          "width": {
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "main_category": {
+                        "type": "string"
+                      },
+                      "methods": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "purveyor": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "sub_categories": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "summary": {
+                        "type": "string"
+                      },
+                      "tags": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "taste": {
+                        "type": "string"
+                      },
+                      "trending": {
+                        "type": "boolean"
+                      },
+                      "updated_at": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "meta": {
+                    "properties": {
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "current_version": {
+                        "type": "string"
+                      },
+                      "first_published_at": {},
+                      "is_valid": {
+                        "type": "boolean"
+                      },
+                      "publication_scheduled_at": {},
+                      "published_at": {},
+                      "status": {
+                        "type": "string"
+                      },
+                      "unpublishing_scheduled_at": {},
+                      "updated_at": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "relationships": {
+                    "properties": {
+                      "creator": {
+                        "properties": {
+                          "data": {
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "item_type": {
+                        "properties": {
+                          "data": {
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "entity_type": {
+                "type": "string"
+              },
+              "environment": {
+                "type": "string"
+              },
+              "event_type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "kind": "Http",
+        "type": "Request"
+      }
+    }
+  },
+  "parameters": {}
+}

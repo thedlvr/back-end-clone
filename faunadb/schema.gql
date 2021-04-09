@@ -234,17 +234,17 @@ type Mutation {
 
   updateRecipe(
     datocms_id: String!
-    datocms_purveyor_id: String
     datocms_main_category_id: String
     datocms_sub_categories: [String]
     datocms_tags: [String]
     datocms_methods: [String]
-    name: String
-    duration: String
-    authors_tip: String
-    difficulty: String
-    featured_image: String
-    is_trending: String
-    summary: String
+    datocms_name: String
+    datocms_featured_image_url: String
+    datocms_duration: Int
+    datocms_difficulty: String
+    datocms_taste: String
+    datocms_summary: String
+    datocms_authors_tip: String
+    datocms_is_trending: String
   ): Recipe! @resolver
 }
