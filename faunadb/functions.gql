@@ -362,3 +362,137 @@ Update(Function("updateRecipe"), {
     )
   )
 });
+
+Update(Function("favoriteProduct"), {
+  "body":Query(
+    Lambda(
+      ["auth0_email", "cl_sku"],
+      Let(
+        {
+          user: Let(
+            {
+              users: Map(
+                Paginate(Match(Index("findUserByEmail"), Var("auth0_email"))),
+                Lambda("users", Get(Var("users")))
+              )
+            },
+            Select([0], Var("users"), false)
+          ),
+          product: Let(
+            {
+              products: Map(
+                Paginate(
+                  Match(Index("findProductByClSku"), Var("cl_sku"))
+                ),
+                Lambda("products", Get(Var("products")))
+              )
+            },
+            Select([0], Var("products"), false)
+          ),
+          favoriteProductSelected: Let(
+            {
+              favoriteProductRefs: Paginate(
+                Match(
+                  Index("findFavoriteProductByUser"),
+                  Select("ref", Var("user"), false)
+                )
+              ),
+              productRefs: Map(
+                Var("favoriteProductRefs"),
+                Lambda(
+                  ["ref"],
+                  Let(
+                    {
+                      product: Get(
+                        Select(["data", "productId"], Get(Var("ref")), false)
+                      )
+                    },
+                    {
+                      favoriteproductRef: Get(Var("ref")),
+                      product: Var("product")
+                    }
+                  )
+                )
+              ),
+              favoriteProductSelected: Let(
+                {
+                  favoriteProductSelected: Filter(
+                    Var("productRefs"),
+                    Lambda(
+                      ["favoriteProduct"],
+                      Equals(
+                        Var("cl_sku"),
+                        Select(
+                          ["product", "data", "cl_sku"],
+                          Var("favoriteProduct"),
+                          false
+                        )
+                      )
+                    )
+                  )
+                },
+                Select([0], Var("favoriteProductSelected"), false)
+              ),
+              favoriteProductStatus: If(
+                IsNull(Var("favoriteProductSelected")),
+                Create(Collection("user_favorite_products"), {
+                  data: {
+                    userId: Select(["ref"], Var("user"), false),
+                    productId: Ref(
+                      Collection("products"),
+                      Select(["ref", "id"], Var("product"), false)
+                    )
+                  }
+                }),
+                Delete(
+                  Ref(
+                    Collection("user_favorite_products"),
+                    Select(
+                      ["favoriteProductRef", "ref", "id"],
+                      Var("favoriteProductSelected"),
+                      false
+                    )
+                  )
+                )
+              )
+            },
+            Var("favoriteProductSelected")
+          ),
+          favoriteProductsUpdated: Let(
+            {
+              favoriteProductRefs: Paginate(
+                Match(
+                  Index("findFavoriteProductByUser"),
+                  Select("ref", Var("user"), false)
+                )
+              ),
+              products: Map(
+                Var("favoriteProductRefs"),
+                Lambda(
+                  ["ref"],
+                  Let(
+                    {
+                      product: Get(
+                        Select(["data", "productId"], Get(Var("ref")), false)
+                      )
+                    },
+                    Select("data", Var("product"), false)
+                  )
+                )
+              )
+            },
+            Select("data", Var("products"), false)
+          )
+        },
+        {
+          message: If(
+            IsNull(Var("favoriteProductSelected")),
+            "favorited",
+            "unfavorited"
+          ),
+          favoriteProducts: Var("favoriteProductsUpdated")
+        }
+      )
+    )
+  )
+});

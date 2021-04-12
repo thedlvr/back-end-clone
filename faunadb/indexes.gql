@@ -37,3 +37,19 @@ CreateIndex({
   source: Collection("user_favorite_recipes"),
   terms: [{ field: ["data", "userId"] }]
 });
+
+CreateIndex({
+  name: "findProductByClSku",
+  unique: false,
+  serialized: true,
+  source: Collection("products"),
+  terms: [{ field: ["data", "cl_sku"] }]
+});
+
+CreateIndex({
+  name: "findFavoriteProductByUser",
+  unique: false,
+  serialized: true,
+  source: Collection("user_favorite_products"),
+  terms: [{ field: ["data", "userId"] }]
+});

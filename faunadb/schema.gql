@@ -216,9 +216,9 @@ type Mutation {
 
   updateFavoriteProduct(
     auth0: String!
-    sku: String!
+    cl_sku: String!
   ): UserFavoriteProductPaylod
-    @resolver(name: "favoriteproduct", paginated: false)
+    @resolver(name: "favoriteProduct", paginated: false)
 
   updateFavoritePurveyor(
     auth0: String!
