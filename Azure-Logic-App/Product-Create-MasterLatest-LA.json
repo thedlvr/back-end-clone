@@ -1,0 +1,576 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "CommerceLayer_-_Get_SKU_by_SKU_code": {
+        "inputs": {
+          "headers": {
+            "Authorization": "Bearer @{body('Parse_JSON_-_CL_Auth')?['access_token']}"
+          },
+          "method": "GET",
+          "uri": "https://providore.commercelayer.io/api/skus?filter[q][code_eq]=@{triggerBody()?['entity']?['attributes']?['sku']}"
+        },
+        "runAfter": {
+          "Parse_JSON_-_CL_Auth": [
+            "Succeeded"
+          ]
+        },
+        "type": "Http"
+      },
+      "CommerceLayer_-_Results_matched_array": {
+        "actions": {
+          "Fauna_-_save_product_in_products_collection": {
+            "inputs": {
+              "body": {
+                "query": "mutation AddProduct { createProduct( data:{ datocms_id: \"@{triggerBody()?['entity']?['id']}\" datocms_name: \"@{triggerBody()?['entity']?['attributes']?['name']}\" datocms_price: @{triggerBody()?['entity']?['attributes']?['price']} datocms_description: \"@{triggerBody()?['entity']?['attributes']?['description']}\" datocms_product_measurement: \"@{triggerBody()?['entity']?['attributes']?['product_measurement']}\" datocms_product_unit: \"@{triggerBody()?['entity']?['attributes']?['product_unit']}\" datocms_dietary_tag: \"@{triggerBody()?['entity']?['attributes']?['dietary_tag']}\" datocms_categories: @{triggerBody()?['entity']?['attributes']?['category']} product_options: @{triggerBody()?['entity']?['attributes']?['product_options']} cl_id: \"@{items('CommerceLayer_-_Results_matched_array')?['id']}\" cl_sku: \"@{triggerBody()?['entity']?['attributes']?['sku']}\"  purveyor_profile: { connect: @{outputs('Get_Purveyor_Ref_Id')?['body']} } created_at: \"@{triggerBody()?['entity']?['attributes']?['created_at']}\" } ) { _id }}"
+              },
+              "headers": {
+                "Authorization": "Bearer fnAEFZcqZbACCCiFXi9mhzbYzZQWyWTVJadUeZXP",
+                "Content-Type": "application/json"
+              },
+              "method": "POST",
+              "uri": "https://graphql.fauna.com/graphql"
+            },
+            "runAfter": {},
+            "type": "Http"
+          }
+        },
+        "foreach": "@body('Parse_JSON_-_CommerceLayer_get_sku_by_sku_code')?['data']",
+        "runAfter": {
+          "Parse_JSON_-_CommerceLayer_get_sku_by_sku_code": [
+            "Succeeded"
+          ]
+        },
+        "type": "Foreach"
+      },
+      "CommerceLayer_authentication": {
+        "inputs": {
+          "body": {
+            "client_id": "rg5pxIdrs2mjkDxji2lMApHFN-wBRbZPboRsURNEbWk",
+            "client_secret": "ibety4d62Ovkus-9iZ9g9JJe2ZKM0Lxt9ip0s32Mfuk",
+            "grant_type": "client_credentials",
+            "scope": "market:2678"
+          },
+          "method": "POST",
+          "uri": "https://providore.commercelayer.io/oauth/token"
+        },
+        "runAfter": {
+          "Get_Purveyor_Ref_Id": [
+            "Succeeded"
+          ]
+        },
+        "type": "Http"
+      },
+      "Fauna_-_get_purveyor_profile": {
+        "inputs": {
+          "body": {
+            "query": "query {findPurveyorByDatocmsId(datocms_id: @{triggerBody()?['entity']?['attributes']?['purveyor']}) {_id}}"
+          },
+          "headers": {
+            "Authorization": "Bearer fnAEFZcqZbACCCiFXi9mhzbYzZQWyWTVJadUeZXP",
+            "Content-Type": "application/json"
+          },
+          "method": "POST",
+          "uri": "https://graphql.fauna.com/graphql"
+        },
+        "runAfter": {},
+        "type": "Http"
+      },
+      "Get_Purveyor_Ref_Id": {
+        "inputs": {
+          "code": "return workflowContext.actions.Schema_PurveyorProfile.outputs.body.data.findPurveyorByDatocmsId[0]['_id']"
+        },
+        "runAfter": {
+          "Schema_PurveyorProfile": [
+            "Succeeded"
+          ]
+        },
+        "type": "JavaScriptCode"
+      },
+      "Parse_JSON_-_CL_Auth": {
+        "inputs": {
+          "content": "@body('CommerceLayer_authentication')",
+          "schema": {
+            "properties": {
+              "access_token": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "integer"
+              },
+              "expires_in": {
+                "type": "integer"
+              },
+              "scope": {
+                "type": "string"
+              },
+              "token_type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "runAfter": {
+          "CommerceLayer_authentication": [
+            "Succeeded"
+          ]
+        },
+        "type": "ParseJson"
+      },
+      "Parse_JSON_-_CommerceLayer_get_sku_by_sku_code": {
+        "inputs": {
+          "content": "@body('CommerceLayer_-_Get_SKU_by_SKU_code')",
+          "schema": {
+            "properties": {
+              "data": {
+                "items": {
+                  "properties": {
+                    "attributes": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "hs_tariff_number": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "image_url": {
+                          "type": "string"
+                        },
+                        "metadata": {
+                          "properties": {},
+                          "type": "object"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "pieces_per_pack": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        },
+                        "reference": {
+                          "type": "string"
+                        },
+                        "reference_origin": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "unit_of_weight": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        },
+                        "weight": {}
+                      },
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "links": {
+                      "properties": {
+                        "self": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "meta": {
+                      "properties": {
+                        "mode": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "relationships": {
+                      "properties": {
+                        "delivery_lead_times": {
+                          "properties": {
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string"
+                                },
+                                "self": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "prices": {
+                          "properties": {
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string"
+                                },
+                                "self": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "shipping_category": {
+                          "properties": {
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string"
+                                },
+                                "self": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "sku_options": {
+                          "properties": {
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string"
+                                },
+                                "self": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "stock_items": {
+                          "properties": {
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string"
+                                },
+                                "self": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "links",
+                    "attributes",
+                    "relationships",
+                    "meta"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "links": {
+                "properties": {
+                  "first": {
+                    "type": "string"
+                  },
+                  "last": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "meta": {
+                "properties": {
+                  "page_count": {
+                    "type": "integer"
+                  },
+                  "record_count": {
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "runAfter": {
+          "CommerceLayer_-_Get_SKU_by_SKU_code": [
+            "Succeeded"
+          ]
+        },
+        "type": "ParseJson"
+      },
+      "Response": {
+        "inputs": {
+          "statusCode": 201
+        },
+        "kind": "Http",
+        "operationOptions": "Asynchronous",
+        "runAfter": {
+          "CommerceLayer_-_Results_matched_array": [
+            "Succeeded"
+          ]
+        },
+        "type": "Response"
+      },
+      "Schema_PurveyorProfile": {
+        "inputs": {
+          "content": "@body('Fauna_-_get_purveyor_profile')",
+          "schema": {
+            "properties": {
+              "data": {
+                "properties": {
+                  "findPurveyorByDatocmsId": {
+                    "items": {
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "_id"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "runAfter": {
+          "Fauna_-_get_purveyor_profile": [
+            "Succeeded"
+          ]
+        },
+        "type": "ParseJson"
+      }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {},
+    "triggers": {
+      "manual": {
+        "inputs": {
+          "method": "POST",
+          "schema": {
+            "properties": {
+              "entity": {
+                "properties": {
+                  "attributes": {
+                    "properties": {
+                      "category": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "dietary_tag": {
+                        "type": "string"
+                      },
+                      "featured": {
+                        "type": "boolean"
+                      },
+                      "images": {
+                        "items": {
+                          "properties": {
+                            "alt": {},
+                            "format": {
+                              "type": "string"
+                            },
+                            "height": {
+                              "type": "integer"
+                            },
+                            "path": {
+                              "type": "string"
+                            },
+                            "size": {
+                              "type": "integer"
+                            },
+                            "title": {},
+                            "width": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "format",
+                            "size",
+                            "alt",
+                            "title",
+                            "width",
+                            "height"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "price": {
+                        "type": "integer"
+                      },
+                      "product_measurement": {
+                        "type": "string"
+                      },
+                      "product_options": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "product_unit": {
+                        "type": "string"
+                      },
+                      "purveyor": {
+                        "type": "string"
+                      },
+                      "sku": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "updated_at": {
+                        "type": "string"
+                      },
+                      "variant_child_product": {
+                        "type": "boolean"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "meta": {
+                    "properties": {
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "current_version": {
+                        "type": "string"
+                      },
+                      "first_published_at": {},
+                      "is_valid": {
+                        "type": "boolean"
+                      },
+                      "publication_scheduled_at": {},
+                      "published_at": {},
+                      "status": {
+                        "type": "string"
+                      },
+                      "unpublishing_scheduled_at": {},
+                      "updated_at": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "relationships": {
+                    "properties": {
+                      "creator": {
+                        "properties": {
+                          "data": {
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "item_type": {
+                        "properties": {
+                          "data": {
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "entity_type": {
+                "type": "string"
+              },
+              "environment": {
+                "type": "string"
+              },
+              "event_type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "kind": "Http",
+        "type": "Request"
+      }
+    }
+  },
+  "parameters": {}
+}
